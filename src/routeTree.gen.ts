@@ -9,38 +9,154 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DiscoverRouteImport } from './routes/discover'
+import { Route as CartRouteImport } from './routes/cart'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as AuthenticatedSellerRouteImport } from './routes/_authenticated/seller'
+import { Route as AuthenticatedSellerNewRouteImport } from './routes/_authenticated/seller.new'
 
+const DiscoverRoute = DiscoverRouteImport.update({
+  id: '/discover',
+  path: '/discover',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductIdRoute = ProductIdRouteImport.update({
+  id: '/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSellerRoute = AuthenticatedSellerRouteImport.update({
+  id: '/seller',
+  path: '/seller',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSellerNewRoute = AuthenticatedSellerNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AuthenticatedSellerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/cart': typeof CartRoute
+  '/discover': typeof DiscoverRoute
+  '/seller': typeof AuthenticatedSellerRouteWithChildren
+  '/product/$id': typeof ProductIdRoute
+  '/seller/new': typeof AuthenticatedSellerNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/cart': typeof CartRoute
+  '/discover': typeof DiscoverRoute
+  '/seller': typeof AuthenticatedSellerRouteWithChildren
+  '/product/$id': typeof ProductIdRoute
+  '/seller/new': typeof AuthenticatedSellerNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/cart': typeof CartRoute
+  '/discover': typeof DiscoverRoute
+  '/_authenticated/seller': typeof AuthenticatedSellerRouteWithChildren
+  '/product/$id': typeof ProductIdRoute
+  '/_authenticated/seller/new': typeof AuthenticatedSellerNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/cart'
+    | '/discover'
+    | '/seller'
+    | '/product/$id'
+    | '/seller/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/cart'
+    | '/discover'
+    | '/seller'
+    | '/product/$id'
+    | '/seller/new'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/cart'
+    | '/discover'
+    | '/_authenticated/seller'
+    | '/product/$id'
+    | '/_authenticated/seller/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  CartRoute: typeof CartRoute
+  DiscoverRoute: typeof DiscoverRoute
+  ProductIdRoute: typeof ProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/discover': {
+      id: '/discover'
+      path: '/discover'
+      fullPath: '/discover'
+      preLoaderRoute: typeof DiscoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +164,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/seller': {
+      id: '/_authenticated/seller'
+      path: '/seller'
+      fullPath: '/seller'
+      preLoaderRoute: typeof AuthenticatedSellerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/seller/new': {
+      id: '/_authenticated/seller/new'
+      path: '/new'
+      fullPath: '/seller/new'
+      preLoaderRoute: typeof AuthenticatedSellerNewRouteImport
+      parentRoute: typeof AuthenticatedSellerRoute
+    }
   }
 }
 
+interface AuthenticatedSellerRouteChildren {
+  AuthenticatedSellerNewRoute: typeof AuthenticatedSellerNewRoute
+}
+
+const AuthenticatedSellerRouteChildren: AuthenticatedSellerRouteChildren = {
+  AuthenticatedSellerNewRoute: AuthenticatedSellerNewRoute,
+}
+
+const AuthenticatedSellerRouteWithChildren =
+  AuthenticatedSellerRoute._addFileChildren(AuthenticatedSellerRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedSellerRoute: typeof AuthenticatedSellerRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedSellerRoute: AuthenticatedSellerRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  CartRoute: CartRoute,
+  DiscoverRoute: DiscoverRoute,
+  ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

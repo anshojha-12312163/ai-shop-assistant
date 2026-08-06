@@ -107,9 +107,23 @@ function CartPage() {
             </div>
 
             <div className="mt-8 p-6 bg-foreground text-background rounded-2xl">
-              <div className="flex justify-between text-sm mb-6">
-                <span className="opacity-60">Total</span>
-                <span className="font-mono text-lg">{formatPrice(total)}</span>
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-sm">
+                  <span className="opacity-60">Subtotal</span>
+                  <span className="font-mono">{formatPrice(total)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="opacity-60">Platform fee (5%)</span>
+                  <span className="font-mono text-accent">{formatPrice(Math.round(total * 0.05))}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="opacity-60">Shipping</span>
+                  <span className="font-mono opacity-60">Calculated at checkout</span>
+                </div>
+                <div className="border-t border-background/20 pt-3 flex justify-between">
+                  <span className="font-bold">Total</span>
+                  <span className="font-mono text-lg font-bold">{formatPrice(total + Math.round(total * 0.05))}</span>
+                </div>
               </div>
               <button
                 onClick={checkout}

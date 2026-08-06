@@ -110,6 +110,19 @@ function SellerDashboard() {
           <StatCard label="Total inventory" value={String(listings.reduce((s, p) => s + p.in_stock, 0))} />
         </div>
 
+        {/* Tier banner */}
+        <div className="mb-12 p-5 bg-surface-elevated ring-1 ring-black/5 rounded-2xl flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-4">
+            <div className="px-3 py-1.5 rounded-full bg-secondary text-[10px] font-bold font-mono uppercase tracking-widest">Free Plan</div>
+            <div className="text-sm text-muted-foreground">
+              5% commission · 5 listing limit · Standard placement
+            </div>
+          </div>
+          <a href="/pricing" className="text-sm font-bold px-5 py-2.5 rounded-full bg-foreground text-background hover:bg-accent transition-colors shrink-0">
+            Upgrade for lower commission →
+          </a>
+        </div>
+
         {/* Listings */}
         <div className="mb-16">
           <h2 className="text-2xl font-bold mb-6">Your listings</h2>

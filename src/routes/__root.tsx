@@ -44,21 +44,33 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
+  function handleClearAndReload() {
+    if (typeof window !== "undefined") {
+      localStorage.clear();
+      window.location.href = "/";
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold">This page didn't load</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong. Try refreshing or head back home.
+      <div className="max-w-md text-center space-y-4">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">This page didn't load</h1>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          {error?.message ? error.message : "Something went wrong while rendering the route. Please try refreshing or clear session cache."}
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <div className="pt-2 flex flex-wrap justify-center gap-3">
           <button
             onClick={() => { router.invalidate(); reset(); }}
             className="rounded-full bg-foreground px-6 py-2.5 text-sm font-bold text-background hover:bg-accent transition-colors"
           >
             Try again
           </button>
-          <a href="/" className="rounded-full border border-border px-6 py-2.5 text-sm font-medium">Home</a>
+          <button
+            onClick={handleClearAndReload}
+            className="rounded-full border border-border bg-secondary px-6 py-2.5 text-sm font-semibold text-foreground hover:bg-border transition-colors"
+          >
+            Reset Session & Home
+          </button>
         </div>
       </div>
     </div>
@@ -108,7 +120,23 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    // Clean OAuth hash fragments (#access_token=...) on OAuth redirect return
+    if (typeof window !== "undefined" && window.location.hash.includes("access_token=")) {
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session) {
+          window.history.replaceState(null, "", "/discover");
+          router.navigate({ to: "/discover", replace: true });
+        }
+      });
+    }
+
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
+        if (typeof window !== "undefined" && window.location.hash.includes("access_token=")) {
+          window.history.replaceState(null, "", "/discover");
+          router.navigate({ to: "/discover", replace: true });
+        }
+      }
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();

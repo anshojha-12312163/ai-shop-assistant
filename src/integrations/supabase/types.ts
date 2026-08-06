@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      favorites: {
+        Row: {
+          id: string
+          user_id: string
+          shop_id: string
+          shop_name: string
+          shop_image: string | null
+          shop_category: string
+          shop_rating: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          shop_id: string
+          shop_name: string
+          shop_image?: string | null
+          shop_category: string
+          shop_rating?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          shop_id?: string
+          shop_name?: string
+          shop_image?: string | null
+          shop_category?: string
+          shop_rating?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      search_history: {
+        Row: {
+          id: string
+          user_id: string
+          query_text: string
+          location_label: string | null
+          result_count: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          query_text: string
+          location_label?: string | null
+          result_count?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          query_text?: string
+          location_label?: string | null
+          result_count?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           buyer_id: string
@@ -222,6 +282,57 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      shops: {
+        Row: {
+          address: string
+          category: string
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          keywords: string[]
+          lat: number
+          lng: number
+          name: string
+          open_now: boolean
+          phone: string | null
+          rating: number
+          review_count: number
+        }
+        Insert: {
+          address: string
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          keywords?: string[]
+          lat: number
+          lng: number
+          name: string
+          open_now?: boolean
+          phone?: string | null
+          rating?: number
+          review_count?: number
+        }
+        Update: {
+          address?: string
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          keywords?: string[]
+          lat?: number
+          lng?: number
+          name?: string
+          open_now?: boolean
+          phone?: string | null
+          rating?: number
+          review_count?: number
         }
         Relationships: []
       }

@@ -3,11 +3,25 @@ import path from "node:path";
 
 const root = process.cwd();
 const distDir = path.join(root, "dist");
+const publicDir = path.join(root, "public");
 const clientAssetsDir = path.join(distDir, "client", "assets");
 const targetAssetsDir = path.join(distDir, "assets");
 
 if (!fs.existsSync(targetAssetsDir)) {
   fs.mkdirSync(targetAssetsDir, { recursive: true });
+}
+
+// Copy public assets (e.g. favicon.ico) to dist root and dist/client root
+if (fs.existsSync(publicDir)) {
+  const publicFiles = fs.readdirSync(publicDir);
+  for (const file of publicFiles) {
+    const srcPath = path.join(publicDir, file);
+    fs.copyFileSync(srcPath, path.join(distDir, file));
+    const distClientDir = path.join(distDir, "client");
+    if (fs.existsSync(distClientDir)) {
+      fs.copyFileSync(srcPath, path.join(distClientDir, file));
+    }
+  }
 }
 
 let indexJsFile = "";
@@ -68,7 +82,6 @@ const htmlContent = `<!doctype html>
 
 fs.writeFileSync(path.join(distDir, "index.html"), htmlContent, "utf-8");
 
-// Also write to dist/client/index.html just in case
 const distClientDir = path.join(distDir, "client");
 if (fs.existsSync(distClientDir)) {
   fs.writeFileSync(path.join(distClientDir, "index.html"), htmlContent, "utf-8");

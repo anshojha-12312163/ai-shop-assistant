@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { createServerFn } from "@tanstack/react-start";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { Nav } from "@/components/marketplace/Nav";
@@ -183,7 +183,7 @@ export const Route = createFileRoute("/")({
   }),
   loader: async ({ context }) => {
     try {
-      await context.queryClient.ensureQueryData({
+      await context.queryClient.prefetchQuery({
         queryKey: ["featured"],
         queryFn: () => listFeatured().catch(() => FALLBACK_PRODUCTS),
       });
@@ -419,9 +419,10 @@ function Home() {
   const [pendingQuery, setPendingQuery] = useState<string>("");
 
   const navigate = useNavigate();
-  const { data: featured } = useSuspenseQuery({
+  const { data: featured = FALLBACK_PRODUCTS } = useQuery({
     queryKey: ["featured"],
-    queryFn: () => listFeatured(),
+    queryFn: () => listFeatured().catch(() => FALLBACK_PRODUCTS),
+    initialData: FALLBACK_PRODUCTS,
   });
 
   // Load session state

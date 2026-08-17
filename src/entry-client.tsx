@@ -8,10 +8,9 @@ const router = getRouter();
 
 const rootElement = document.getElementById("root");
 if (rootElement) {
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(
+  ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
-      <RouterProvider router={router} />
+      <RouterProvider router={router} context={{ queryClient: router.options.context.queryClient }} />
     </React.StrictMode>,
   );
 }

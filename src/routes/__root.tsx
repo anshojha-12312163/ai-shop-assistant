@@ -9,7 +9,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
 
-import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { CartProvider } from "@/lib/cart";
@@ -56,11 +55,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <div className="pt-2 flex flex-wrap justify-center gap-3">
           <button
             onClick={() => {
-              if (typeof window !== "undefined") {
-                window.location.reload();
-              } else {
-                reset();
-              }
+              window.location.reload();
             }}
             className="rounded-full bg-foreground px-6 py-2.5 text-sm font-bold text-background hover:bg-accent transition-colors cursor-pointer"
           >
@@ -99,7 +94,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },

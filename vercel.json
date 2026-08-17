@@ -1,3 +1,11 @@
 {
-  "buildCommand": "npm run build"
+  "buildCommand": "vite build",
+  "outputDirectory": "dist/client",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }

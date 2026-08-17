@@ -1,3 +1,11 @@
 {
-  "buildCommand": "NITRO_PRESET=vercel npm run build"
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }

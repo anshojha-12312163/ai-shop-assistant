@@ -6,11 +6,8 @@ import "./styles.css";
 
 const router = getRouter();
 
-const rootElement = document.getElementById("root");
-if (rootElement) {
-  ReactDOM.createRoot(rootElement).render(
-    <React.StrictMode>
-      <RouterProvider router={router} context={{ queryClient: router.options.context.queryClient }} />
-    </React.StrictMode>,
-  );
-}
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>,
+);

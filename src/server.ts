@@ -1,8 +1,7 @@
 // Polyfill window & document for SSR node environment before loading leaflet / react-leaflet modules
 if (typeof globalThis.window === "undefined") {
   const dummyEl = { setAttribute: () => {}, style: {}, appendChild: () => {} };
-  (globalThis as any).window = globalThis;
-  (globalThis as any).document = {
+  const dummyDoc = {
     createElement: () => dummyEl,
     getElementsByTagName: () => [],
     querySelector: () => null,
@@ -10,7 +9,22 @@ if (typeof globalThis.window === "undefined") {
     head: dummyEl,
     body: dummyEl,
   };
-  (globalThis as any).navigator = { userAgent: "node" };
+
+  const define = (key: string, value: unknown) => {
+    try {
+      Object.defineProperty(globalThis, key, {
+        value,
+        writable: true,
+        configurable: true,
+      });
+    } catch {
+      // already defined and non-configurable — skip
+    }
+  };
+
+  define("window", globalThis);
+  define("document", dummyDoc);
+  define("navigator", { userAgent: "node" });
 }
 
 import "./lib/error-capture";

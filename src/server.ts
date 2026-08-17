@@ -1,5 +1,19 @@
+// Polyfill window & document for SSR node environment before loading leaflet / react-leaflet modules
+if (typeof globalThis.window === "undefined") {
+  const dummyEl = { setAttribute: () => {}, style: {}, appendChild: () => {} };
+  (globalThis as any).window = globalThis;
+  (globalThis as any).document = {
+    createElement: () => dummyEl,
+    getElementsByTagName: () => [],
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    head: dummyEl,
+    body: dummyEl,
+  };
+  (globalThis as any).navigator = { userAgent: "node" };
+}
+
 import "./lib/error-capture";
-import { consumeLastCapturedError } from "./lib/error-capture";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;

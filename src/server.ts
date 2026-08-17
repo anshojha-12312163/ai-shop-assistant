@@ -38,8 +38,19 @@ export default {
       if (response.status >= 500) {
         try {
           const text = await response.clone().text();
-          if (text.includes('"unhandled": true') || text.includes('"status": 500')) {
-            console.warn("Intercepted SSR 500 error response, bypassing swallow");
+          if (
+            text.includes('"unhandled": true') ||
+            text.includes('"status": 500') ||
+            text.includes("HTTPError")
+          ) {
+            console.warn("Intercepted SSR HTTPError 500 response, serving client HTML fallback");
+            return new Response(
+              `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Synthetix — Find exactly what you actually mean</title></head><body><div id="root"></div></body></html>`,
+              {
+                status: 200,
+                headers: { "content-type": "text/html; charset=utf-8" },
+              },
+            );
           }
         } catch {
           // ignore clone error
@@ -48,8 +59,13 @@ export default {
       return response;
     } catch (error) {
       console.warn("SSR Server Entry warning:", error);
-      const handler = await getServerEntry();
-      return await handler.fetch(request, env, ctx);
+      return new Response(
+        `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Synthetix — Find exactly what you actually mean</title></head><body><div id="root"></div></body></html>`,
+        {
+          status: 200,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        },
+      );
     }
   },
 };

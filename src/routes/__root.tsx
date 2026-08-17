@@ -3,7 +3,6 @@ import {
   Outlet,
   Link,
   createRootRouteWithContext,
-  useRouter,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -39,7 +38,6 @@ function NotFoundComponent() {
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
-  const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
@@ -61,7 +59,6 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               if (typeof window !== "undefined") {
                 window.location.reload();
               } else {
-                router.invalidate();
                 reset();
               }
             }}
@@ -134,7 +131,6 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const router = useRouter();
 
   useEffect(() => {
     // Clean OAuth hash fragments (#access_token=...) on OAuth redirect return
@@ -142,7 +138,6 @@ function RootComponent() {
       supabase.auth.getSession().then(({ data }) => {
         if (data.session) {
           window.history.replaceState(null, "", "/discover");
-          router.navigate({ to: "/discover", replace: true });
         }
       });
     }
@@ -151,15 +146,13 @@ function RootComponent() {
       if (event === "SIGNED_IN") {
         if (typeof window !== "undefined" && window.location.hash.includes("access_token=")) {
           window.history.replaceState(null, "", "/discover");
-          router.navigate({ to: "/discover", replace: true });
         }
       }
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
     });
     return () => sub.subscription.unsubscribe();
-  }, [queryClient, router]);
+  }, [queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -28,7 +28,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) setItems(JSON.parse(raw));
-    } catch {}
+    } catch {
+      // Ignore local storage parse errors
+    }
     setHydrated(true);
   }, []);
 
@@ -48,7 +50,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const total = items.reduce((s, i) => s + i.price_cents * i.qty, 0);
   const count = items.reduce((s, i) => s + i.qty, 0);
 
-  return <Ctx.Provider value={{ items, add, remove, clear, total, count }}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={{ items, add, remove, clear, total, count }}>{children}</Ctx.Provider>
+  );
 }
 
 export function useCart() {
@@ -58,5 +62,6 @@ export function useCart() {
 }
 
 export function formatPrice(cents: number) {
-  return `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
+  const amount = Math.round(cents / 100);
+  return `₹${amount.toLocaleString("en-IN")}`;
 }

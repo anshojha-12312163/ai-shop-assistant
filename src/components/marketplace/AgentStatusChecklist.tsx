@@ -7,7 +7,11 @@ interface AgentStatusChecklistProps {
   isStreaming?: boolean;
 }
 
-export function AgentStatusChecklist({ steps, isScanningImage, isStreaming }: AgentStatusChecklistProps) {
+export function AgentStatusChecklist({
+  steps,
+  isScanningImage,
+  isStreaming,
+}: AgentStatusChecklistProps) {
   // Define full agent list order
   const allPossibleAgents = [
     ...(isScanningImage ? ["Image Recognition Agent"] : []),
@@ -48,10 +52,10 @@ export function AgentStatusChecklist({ steps, isScanningImage, isStreaming }: Ag
                 isDone
                   ? "text-foreground font-medium"
                   : isInProgress
-                  ? "text-accent font-semibold"
-                  : isFailed
-                  ? "text-rose-600 font-semibold"
-                  : "text-muted-foreground/60"
+                    ? "text-accent font-semibold"
+                    : isFailed
+                      ? "text-rose-600 font-semibold"
+                      : "text-muted-foreground/60"
               }`}
             >
               {/* Icon Indicator */}
@@ -70,15 +74,15 @@ export function AgentStatusChecklist({ steps, isScanningImage, isStreaming }: Ag
               {/* Agent Title & Details */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-semibold text-xs tracking-tight">
-                    {agentName}
-                  </span>
+                  <span className="font-semibold text-xs tracking-tight">{agentName}</span>
                   <span className="text-[10px] font-mono text-muted-foreground/50">
                     Step {idx + 1}/{allPossibleAgents.length}
                   </span>
                 </div>
                 {step?.detail && (
-                  <p className={`text-[11px] font-mono mt-0.5 truncate ${isFailed ? "text-rose-600 font-semibold" : "text-muted-foreground"}`}>
+                  <p
+                    className={`text-[11px] font-mono mt-0.5 truncate ${isFailed ? "text-rose-600 font-semibold" : "text-muted-foreground"}`}
+                  >
                     — {step.detail}
                   </p>
                 )}

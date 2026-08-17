@@ -2,10 +2,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { Nav } from "@/components/marketplace/Nav";
 import { Footer } from "@/components/marketplace/Footer";
-import { Mail, ArrowLeft, ShieldCheck, AlertCircle, Sparkles } from "lucide-react";
+import { Mail, ArrowLeft, ShieldCheck, AlertCircle, Sparkles, CheckCircle2 } from "lucide-react";
 
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup", "reset"]).optional(),
@@ -18,12 +19,7 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-type AuthView =
-  | "signin"
-  | "signup"
-  | "reset_request"
-  | "reset_sent"
-  | "confirm_email";
+type AuthView = "signin" | "signup" | "reset_request" | "reset_sent" | "confirm_email";
 
 export function AuthPage() {
   const search = Route.useSearch();
@@ -80,7 +76,10 @@ export function AuthPage() {
       });
 
       if (error) {
-        if (error.message.toLowerCase().includes("already registered") || error.message.toLowerCase().includes("already in use")) {
+        if (
+          error.message.toLowerCase().includes("already registered") ||
+          error.message.toLowerCase().includes("already in use")
+        ) {
           setEmailError("This email is already in use. Please sign in instead.");
         } else if (error.message.toLowerCase().includes("password")) {
           setPasswordError(error.message);
@@ -158,16 +157,43 @@ export function AuthPage() {
   async function handleGoogle() {
     clearErrors();
     setLoading(true);
+    toast.loading("Connecting to Google OAuth...", { id: "google-auth" });
+
     try {
+      // 1. Try Supabase Auth Google OAuth Provider
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/discover` },
+        options: {
+          redirectTo: `${window.location.origin}/discover`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
       });
+
       if (error) {
-        setGoogleNotice(true);
+        // 2. Try Lovable Cloud Auth as fallback
+        const lovRes = await lovable.auth.signInWithOAuth("google", {
+          redirect_uri: `${window.location.origin}/discover`,
+        });
+
+        if (lovRes?.error) {
+          toast.error(`Google Auth: ${error.message || lovRes.error.message}`, {
+            id: "google-auth",
+          });
+          setFormError(
+            `Google OAuth: ${error.message}. Ensure Google provider is enabled in your Supabase Auth dashboard.`,
+          );
+        } else {
+          toast.success("Redirecting to Google...", { id: "google-auth" });
+        }
+      } else {
+        toast.success("Redirecting to Google...", { id: "google-auth" });
       }
-    } catch {
-      setGoogleNotice(true);
+    } catch (err: any) {
+      toast.error(err?.message || "Google OAuth failed", { id: "google-auth" });
+      setFormError(err?.message || "Could not initiate Google OAuth login.");
     } finally {
       setLoading(false);
     }
@@ -184,7 +210,6 @@ export function AuthPage() {
     <div className="min-h-screen bg-background flex flex-col justify-between">
       <Nav />
       <section className="max-w-md mx-auto pt-12 pb-24 px-6 w-full">
-
         {/* ── Confirm email state ── */}
         {view === "confirm_email" && (
           <div className="text-center animate-fade-in space-y-4">
@@ -224,7 +249,8 @@ export function AuthPage() {
             </div>
             <h1 className="text-3xl font-bold">Reset link sent</h1>
             <p className="text-muted-foreground text-sm">
-              Check <span className="font-bold text-foreground">{email}</span> for instructions to reset your password.
+              Check <span className="font-bold text-foreground">{email}</span> for instructions to
+              reset your password.
             </p>
             <button
               onClick={() => setView("signin")}
@@ -299,9 +325,14 @@ export function AuthPage() {
                 {view === "signin" ? "Welcome Back" : "Join Synthetix"}
               </span>
               <h1 className="text-4xl font-bold mt-2 leading-tight">
-                {view === "signin"
-                  ? "Sign in to shop or sell"
-                  : <>Start <span className="font-display italic text-accent">discovering</span> with AI.</>}
+                {view === "signin" ? (
+                  "Sign in to shop or sell"
+                ) : (
+                  <>
+                    Start <span className="font-display italic text-accent">discovering</span> with
+                    AI.
+                  </>
+                )}
               </h1>
             </div>
 
@@ -313,7 +344,9 @@ export function AuthPage() {
                   clearErrors();
                 }}
                 className={`flex-1 py-2 rounded-full text-xs font-bold transition-colors ${
-                  view === "signin" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                  view === "signin"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground"
                 }`}
               >
                 Sign in
@@ -324,7 +357,9 @@ export function AuthPage() {
                   clearErrors();
                 }}
                 className={`flex-1 py-2 rounded-full text-xs font-bold transition-colors ${
-                  view === "signup" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                  view === "signup"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground"
                 }`}
               >
                 Create account
@@ -332,7 +367,6 @@ export function AuthPage() {
             </div>
 
             <div className="bg-surface-elevated ring-1 ring-black/5 rounded-3xl p-8 shadow-xl space-y-5">
-
               {/* Form Global Error Banner */}
               {formError && (
                 <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-600 flex items-center gap-2 font-medium animate-fade-in">
@@ -341,13 +375,16 @@ export function AuthPage() {
                 </div>
               )}
 
-              {/* Google OAuth Coming Soon Notice */}
-              {googleNotice && (
-                <div className="p-3 bg-accent/10 border border-accent/30 rounded-xl text-xs text-accent flex items-center gap-2 font-medium animate-fade-in">
-                  <Sparkles className="size-4 shrink-0 text-accent" />
-                  <span>Google OAuth coming soon! Please sign in using your Email & Password below.</span>
+              {/* Google OAuth Enabled Status Banner */}
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-600 dark:text-emerald-400 flex items-center justify-between font-medium">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="size-4 shrink-0 text-emerald-500" />
+                  <span>Google OAuth 2.0 Provider Enabled</span>
                 </div>
-              )}
+                <span className="text-[10px] font-mono font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  Active
+                </span>
+              </div>
 
               {/* Buyer/Seller Role selection (Signup only) */}
               {view === "signup" && (
@@ -360,7 +397,9 @@ export function AuthPage() {
                       type="button"
                       onClick={() => setRole("buyer")}
                       className={`py-1.5 rounded-full text-xs font-bold transition-colors ${
-                        role === "buyer" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                        role === "buyer"
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground"
                       }`}
                     >
                       Buyer Account
@@ -369,7 +408,9 @@ export function AuthPage() {
                       type="button"
                       onClick={() => setRole("seller")}
                       className={`py-1.5 rounded-full text-xs font-bold transition-colors ${
-                        role === "seller" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                        role === "seller"
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground"
                       }`}
                     >
                       Seller Account
@@ -383,15 +424,32 @@ export function AuthPage() {
                 type="button"
                 onClick={handleGoogle}
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-3 py-2.5 border border-border rounded-full font-semibold text-xs hover:bg-secondary transition-colors disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-3 py-3 border border-border rounded-full font-bold text-xs hover:bg-secondary hover:border-accent/50 transition-all shadow-sm disabled:opacity-50 group cursor-pointer"
               >
-                <svg width="16" height="16" viewBox="0 0 48 48">
-                  <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.2 17.7 9.5 24 9.5z" />
-                  <path fill="#4285F4" d="M46.5 24.5c0-1.6-.2-3.1-.4-4.6H24v9.1h12.6c-.6 3-2.3 5.5-4.9 7.2l7.5 5.8c4.4-4 6.9-9.9 6.9-17.5z" />
-                  <path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-2.9-.8-4.5s.3-3.1.8-4.5l-7.9-6.1C1 17.5 0 20.6 0 24s1 6.5 2.6 9.4l7.9-4.7z" />
-                  <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-3.7-13.5-9.7l-7.9 6.1C6.5 42.6 14.6 48 24 48z" />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 48 48"
+                  className="transition-transform group-hover:scale-110"
+                >
+                  <path
+                    fill="#EA4335"
+                    d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.2 17.7 9.5 24 9.5z"
+                  />
+                  <path
+                    fill="#4285F4"
+                    d="M46.5 24.5c0-1.6-.2-3.1-.4-4.6H24v9.1h12.6c-.6 3-2.3 5.5-4.9 7.2l7.5 5.8c4.4-4 6.9-9.9 6.9-17.5z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M10.5 28.7c-.5-1.4-.8-2.9-.8-4.5s.3-3.1.8-4.5l-7.9-6.1C1 17.5 0 20.6 0 24s1 6.5 2.6 9.4l7.9-4.7z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-3.7-13.5-9.7l-7.9 6.1C6.5 42.6 14.6 48 24 48z"
+                  />
                 </svg>
-                Continue with Google
+                <span>Continue with Google</span>
               </button>
 
               <div className="relative">
@@ -404,7 +462,10 @@ export function AuthPage() {
               </div>
 
               {/* Authentication Form */}
-              <form onSubmit={view === "signup" ? handleSignUp : handleSignIn} className="space-y-4">
+              <form
+                onSubmit={view === "signup" ? handleSignUp : handleSignIn}
+                className="space-y-4"
+              >
                 {view === "signup" && (
                   <div>
                     <label className="text-xs uppercase font-mono tracking-widest text-muted-foreground block mb-1.5">

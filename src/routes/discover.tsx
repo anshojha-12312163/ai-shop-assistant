@@ -11,7 +11,11 @@ export const Route = createFileRoute("/discover")({
   head: () => ({
     meta: [
       { title: "AI Shop Assistant — Synthetix" },
-      { name: "description", content: "6-Agent chain with vision scanning to find local shops, products, and services near you." },
+      {
+        name: "description",
+        content:
+          "6-Agent chain with vision scanning to find local shops, products, and services near you.",
+      },
     ],
   }),
   component: Discover,
@@ -34,7 +38,8 @@ function Discover() {
             Ask or Scan. Find Nearby.
           </h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Upload a photo of any item or type what you're looking for. Our 6-agent chain identifies, resolves location, searches, ranks, and verifies top local shops for you.
+            Upload a photo of any item or type what you're looking for. Our 6-agent chain
+            identifies, resolves location, searches, ranks, and verifies top local shops for you.
           </p>
         </div>
 

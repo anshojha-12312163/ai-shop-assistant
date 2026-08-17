@@ -49,6 +49,7 @@ interface ChatMessage {
 }
 
 const DEFAULT_SUGGESTIONS = [
+  { text: "Check WhatsApp inventory & broadcast catalog", icon: "📲" },
   { text: "Find nearby sneaker and running shoe stores", icon: "👟" },
   { text: "Where is an open coffee shop with single-origin espresso?", icon: "☕" },
   { text: "Find a local pharmacy stocking wellness supplements", icon: "💊" },
@@ -66,7 +67,7 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
 
   // Google Places Live Search & Filter States
   const [userLocation, setUserLocation] = useState<LocationState>({
-    lat: 31.3260,
+    lat: 31.326,
     lng: 75.5762,
     label: "Jalandhar, Punjab",
     isGPS: false,
@@ -118,7 +119,10 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
       const { data: sessionData } = await supabase.auth.getSession();
       const user = sessionData.session?.user;
       if (user) {
-        const { data: favs } = await supabase.from("favorites").select("shop_id").eq("user_id", user.id);
+        const { data: favs } = await supabase
+          .from("favorites")
+          .select("shop_id")
+          .eq("user_id", user.id);
         if (favs) {
           setUserFavorites(new Set(favs.map((f) => f.shop_id)));
         }
@@ -215,9 +219,12 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
           console.warn("Geolocation denied/unavailable:", err);
           setIsGeoDenied(true);
           try {
-            const res = await fetch("https://nominatim.openstreetmap.org/search?q=Jalandhar,+Punjab&format=json&limit=1", {
-              headers: { "User-Agent": "SynthetixAIShopAssistant/1.0" },
-            });
+            const res = await fetch(
+              "https://nominatim.openstreetmap.org/search?q=Jalandhar,+Punjab&format=json&limit=1",
+              {
+                headers: { "User-Agent": "SynthetixAIShopAssistant/1.0" },
+              },
+            );
             if (res.ok) {
               const data = await res.json();
               if (data?.[0]) {
@@ -231,14 +238,14 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
             }
           } catch {
             setUserLocation({
-              lat: 31.3260,
+              lat: 31.326,
               lng: 75.5762,
               label: "Jalandhar, Punjab",
               isGPS: false,
             });
           }
         },
-        { timeout: 8000, enableHighAccuracy: true }
+        { timeout: 8000, enableHighAccuracy: true },
       );
     } else {
       setIsGeoDenied(true);
@@ -283,7 +290,11 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
   const [modalInitialTab, setModalInitialTab] = useState<"details" | "route">("details");
 
   // Client-side image compression helper
-  async function compressImageBase64(dataUrl: string, maxWidth = 800, quality = 0.75): Promise<string> {
+  async function compressImageBase64(
+    dataUrl: string,
+    maxWidth = 800,
+    quality = 0.75,
+  ): Promise<string> {
     return new Promise((resolve) => {
       const img = new Image();
       img.src = dataUrl;
@@ -339,8 +350,8 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
 
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === msgId ? { ...m, text: textChunk, isStreamingText: curr < fullReply.length } : m
-        )
+          m.id === msgId ? { ...m, text: textChunk, isStreamingText: curr < fullReply.length } : m,
+        ),
       );
 
       if (curr >= fullReply.length) {
@@ -398,7 +409,8 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
 
     // Try Real-Time Streaming SSE Edge Function
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://ai-shop-assistant.supabase.co";
+      const supabaseUrl =
+        import.meta.env.VITE_SUPABASE_URL || "https://ai-shop-assistant.supabase.co";
       const edgeUrl = `${supabaseUrl}/functions/v1/chat-agent`;
 
       const response = await fetch(edgeUrl, {
@@ -434,11 +446,19 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
 
               if (event.type === "agent_start" && event.agent) {
                 setActiveSteps((prev) =>
-                  prev.map((s) => (s.agent === event.agent ? { ...s, status: "in_progress" } : s))
+                  prev.map((s) => (s.agent === event.agent ? { ...s, status: "in_progress" } : s)),
                 );
               } else if (event.type === "agent_done" && event.agent) {
-                if (event.agent === "Location Agent" && event.result && typeof event.result === "object") {
-                  const resLoc = event.result as { lat?: number; lng?: number; locationLabel?: string };
+                if (
+                  event.agent === "Location Agent" &&
+                  event.result &&
+                  typeof event.result === "object"
+                ) {
+                  const resLoc = event.result as {
+                    lat?: number;
+                    lng?: number;
+                    locationLabel?: string;
+                  };
                   if (resLoc.lat && resLoc.lng && resLoc.locationLabel) {
                     setUserLocation({
                       lat: resLoc.lat,
@@ -452,8 +472,8 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                   prev.map((s) =>
                     s.agent === event.agent
                       ? { ...s, status: "completed", detail: event.detail ?? s.detail }
-                      : s
-                  )
+                      : s,
+                  ),
                 );
               } else if (event.type === "final" && event.reply) {
                 streamedSuccessfully = true;
@@ -471,7 +491,10 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                     text: "",
                     detectedImage: finalDetected,
                     agentSteps: finalSteps,
-                    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                    timestamp: new Date().toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }),
                     isStreamingText: true,
                   },
                 ]);
@@ -482,8 +505,10 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                   logSearch(textToSend, finalShops?.length ?? 0);
                   setMessages((prev) =>
                     prev.map((m) =>
-                      m.id === assistantMsgId ? { ...m, shops: finalShops, isStreamingText: false } : m
-                    )
+                      m.id === assistantMsgId
+                        ? { ...m, shops: finalShops, isStreamingText: false }
+                        : m,
+                    ),
                   );
                 });
               } else if (event.type === "error") {
@@ -551,15 +576,17 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
           logSearch(textToSend, res.shops?.length ?? 0);
           setMessages((prev) =>
             prev.map((m) =>
-              m.id === assistantMsgId ? { ...m, shops: res.shops, isStreamingText: false } : m
-            )
+              m.id === assistantMsgId ? { ...m, shops: res.shops, isStreamingText: false } : m,
+            ),
           );
         });
       } catch (fallbackErr) {
         setIsPending(false);
         setStreamFailed(true);
         setActiveSteps((prev) =>
-          prev.map((s) => (s.status === "in_progress" ? { ...s, status: "failed", detail: "step failed" } : s))
+          prev.map((s) =>
+            s.status === "in_progress" ? { ...s, status: "failed", detail: "step failed" } : s,
+          ),
         );
         toast.error("Pipeline interrupted. Click retry to run again.");
         console.error("Agent fallback error:", fallbackErr);
@@ -614,8 +641,12 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
         </div>
         <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground shrink-0 justify-between md:justify-end">
           <span className="flex items-center gap-1.5 px-3 py-1 bg-secondary rounded-full">
-            <span className={`size-2 rounded-full ${userLocation.isGPS ? "bg-accent animate-pulse" : "bg-amber-500"}`} />
-            <span>Active: <strong>{userLocation.label}</strong></span>
+            <span
+              className={`size-2 rounded-full ${userLocation.isGPS ? "bg-accent animate-pulse" : "bg-amber-500"}`}
+            />
+            <span>
+              Active: <strong>{userLocation.label}</strong>
+            </span>
           </span>
         </div>
       </div>
@@ -625,7 +656,8 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
           <div className="flex items-center gap-2">
             <Info className="size-3.5 text-accent shrink-0" />
             <span>
-              <strong>Google Places API Notice:</strong> Running on curated local dataset (fallback mode). Set <code>GOOGLE_PLACES_API_KEY</code> secret for live API data.
+              <strong>Google Places API Notice:</strong> Running on curated local dataset (fallback
+              mode). Set <code>GOOGLE_PLACES_API_KEY</code> secret for live API data.
             </span>
           </div>
           <span className="px-2 py-0.5 rounded bg-accent/15 text-accent font-bold uppercase text-[9px]">
@@ -665,7 +697,9 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                   : "bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 border border-rose-500/30"
               }`}
             >
-              <Heart className={`size-3.5 ${showFavoritesOnly ? "fill-white" : "fill-rose-500 text-rose-500"}`} />
+              <Heart
+                className={`size-3.5 ${showFavoritesOnly ? "fill-white" : "fill-rose-500 text-rose-500"}`}
+              />
               <span>Favorites ({userFavorites.size})</span>
             </button>
           )}
@@ -689,7 +723,9 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
             <button
               onClick={() => setMobileView("list")}
               className={`px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1 transition-colors ${
-                mobileView === "list" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                mobileView === "list"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground"
               }`}
             >
               <ListIcon className="size-3.5" />
@@ -698,7 +734,9 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
             <button
               onClick={() => setMobileView("map")}
               className={`px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1 transition-colors ${
-                mobileView === "map" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                mobileView === "map"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground"
               }`}
             >
               <MapIcon className="size-3.5" />
@@ -763,7 +801,8 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                     Scan photos or search live nearby shops
                   </h3>
                   <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                    Take a photo of a shoe, medicine box, cafe interior, or item. Watch our 6-agent chain search real live Google Places data near your location!
+                    Take a photo of a shoe, medicine box, cafe interior, or item. Watch our 6-agent
+                    chain search real live Google Places data near your location!
                   </p>
                 </div>
 
@@ -775,7 +814,9 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                       onClick={() => handleSubmit(s.text)}
                       className="p-4 bg-surface-elevated border border-border hover:border-accent rounded-2xl text-xs font-medium transition-all hover:shadow-md flex items-center gap-3 text-foreground/90 group"
                     >
-                      <span className="text-xl group-hover:scale-110 transition-transform">{s.icon}</span>
+                      <span className="text-xl group-hover:scale-110 transition-transform">
+                        {s.icon}
+                      </span>
                       <span className="flex-1">{s.text}</span>
                     </button>
                   ))}
@@ -805,7 +846,11 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                   {/* User Attached Image Thumbnail */}
                   {msg.image && (
                     <div className="relative max-w-xs rounded-2xl overflow-hidden border border-white/20 shadow-md">
-                      <img src={msg.image} alt="Uploaded scan" className="w-full h-auto object-cover max-h-60" />
+                      <img
+                        src={msg.image}
+                        alt="Uploaded scan"
+                        className="w-full h-auto object-cover max-h-60"
+                      />
                       <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-white text-[10px] font-mono px-2.5 py-1 rounded-full flex items-center gap-1">
                         <Camera className="size-3 text-accent" />
                         Photo Scanned
@@ -832,15 +877,27 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                       </div>
                       <div className="flex items-center gap-3">
                         {msg.image && (
-                          <img src={msg.image} alt="Scanned item" className="size-12 rounded-xl object-cover border border-accent/30 shrink-0" />
+                          <img
+                            src={msg.image}
+                            alt="Scanned item"
+                            className="size-12 rounded-xl object-cover border border-accent/30 shrink-0"
+                          />
                         )}
                         <div>
-                          <p className="font-bold text-foreground text-sm">{msg.detectedImage.detectedLabel}</p>
+                          <p className="font-bold text-foreground text-sm">
+                            {msg.detectedImage.detectedLabel}
+                          </p>
                           <p className="text-muted-foreground font-mono text-[11px]">
-                            Category: <strong>{msg.detectedImage.category}</strong> • Confidence: <strong>{Math.round((msg.detectedImage.confidence || 0.92) * 100)}%</strong>
+                            Category: <strong>{msg.detectedImage.category}</strong> • Confidence:{" "}
+                            <strong>
+                              {Math.round((msg.detectedImage.confidence || 0.92) * 100)}%
+                            </strong>
                           </p>
                           <p className="text-[11px] text-muted-foreground italic mt-0.5">
-                            "{msg.detectedImage.description || `I think this is a ${msg.detectedImage.detectedLabel} — here are top nearby shops.`}"
+                            "
+                            {msg.detectedImage.description ||
+                              `I think this is a ${msg.detectedImage.detectedLabel} — here are top nearby shops.`}
+                            "
                           </p>
                         </div>
                       </div>
@@ -849,7 +906,10 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
 
                   {/* Agent Status Checklist */}
                   {msg.agentSteps && msg.agentSteps.length > 0 && (
-                    <AgentStatusChecklist steps={msg.agentSteps} isScanningImage={!!msg.detectedImage} />
+                    <AgentStatusChecklist
+                      steps={msg.agentSteps}
+                      isScanningImage={!!msg.detectedImage}
+                    />
                   )}
                 </div>
 
@@ -870,21 +930,25 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                     </div>
 
                     {/* Quick Inline Direction Follow-Up Prompt */}
-                    <div className="p-3 bg-secondary/80 border border-border rounded-2xl flex items-center justify-between gap-3 text-xs shadow-sm">
-                      <span className="text-muted-foreground font-mono">
-                        Want live map directions to <strong>{msg.shops[0].name}</strong>?
-                      </span>
-                      <button
-                        onClick={() => {
-                          setDetailModalPlaceId(msg.shops[0].place_id || msg.shops[0].id);
-                          setModalInitialTab("route");
-                        }}
-                        className="px-3 py-1.5 bg-accent text-accent-foreground hover:bg-accent/90 rounded-full text-xs font-bold flex items-center gap-1.5 transition-colors shrink-0 shadow-sm"
-                      >
-                        <Navigation className="size-3.5" />
-                        Show Route Line
-                      </button>
-                    </div>
+                    {msg.shops && msg.shops.length > 0 && (
+                      <div className="p-3 bg-secondary/80 border border-border rounded-2xl flex items-center justify-between gap-3 text-xs shadow-sm">
+                        <span className="text-muted-foreground font-mono">
+                          Want live map directions to <strong>{msg.shops[0].name}</strong>?
+                        </span>
+                        <button
+                          onClick={() => {
+                            if (msg.shops && msg.shops[0]) {
+                              setDetailModalPlaceId(msg.shops[0].place_id || msg.shops[0].id);
+                              setModalInitialTab("route");
+                            }
+                          }}
+                          className="px-3 py-1.5 bg-accent text-accent-foreground hover:bg-accent/90 rounded-full text-xs font-bold flex items-center gap-1.5 transition-colors shrink-0 shadow-sm"
+                        >
+                          <Navigation className="size-3.5" />
+                          Show Route Line
+                        </button>
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-1 gap-4">
                       {msg.shops.map((shop) => (
@@ -923,7 +987,10 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                   <span>Searching Google Places Nearby...</span>
                 </div>
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-surface-elevated border border-border rounded-2xl p-5 space-y-3 animate-pulse">
+                  <div
+                    key={i}
+                    className="bg-surface-elevated border border-border rounded-2xl p-5 space-y-3 animate-pulse"
+                  >
                     <div className="h-36 bg-secondary/80 rounded-xl" />
                     <div className="h-5 bg-secondary/80 rounded w-1/2" />
                     <div className="h-4 bg-secondary/60 rounded w-3/4" />
@@ -939,7 +1006,7 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                 <p className="text-xs">
                   {showFavoritesOnly
                     ? "No favorited shops match your current category/radius filter."
-                    : "Try choosing a wider radius or selecting \"All\" categories above."}
+                    : 'Try choosing a wider radius or selecting "All" categories above.'}
                 </p>
               </div>
             )}
@@ -948,7 +1015,10 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
             {messages.length === 0 && !isSearchingPlaces && activeShops.length > 0 && (
               <div className="space-y-4 pt-2">
                 <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-muted-foreground px-1">
-                  <span>{showFavoritesOnly ? "Saved Favorite Shops" : "Nearby Merchants"} ({activeShops.length})</span>
+                  <span>
+                    {showFavoritesOnly ? "Saved Favorite Shops" : "Nearby Merchants"} (
+                    {activeShops.length})
+                  </span>
                   <span className="text-accent font-semibold">Live Google Places</span>
                 </div>
                 <div className="grid grid-cols-1 gap-4">
@@ -986,7 +1056,10 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                   </div>
                   <AgentStatusChecklist
                     steps={activeSteps}
-                    isScanningImage={!!selectedImage || activeSteps.some((s) => s.agent === "Image Recognition Agent")}
+                    isScanningImage={
+                      !!selectedImage ||
+                      activeSteps.some((s) => s.agent === "Image Recognition Agent")
+                    }
                     isStreaming={true}
                   />
                 </div>
@@ -1000,7 +1073,9 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                   <AlertCircle className="size-5 text-rose-500 shrink-0" />
                   <div>
                     <p className="text-xs font-bold text-rose-600">Pipeline Stream Interrupted</p>
-                    <p className="text-[11px] text-muted-foreground">Click retry to re-run the multi-agent chain.</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Click retry to re-run the multi-agent chain.
+                    </p>
                   </div>
                 </div>
                 <button
@@ -1021,7 +1096,11 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
             <div className="px-6 py-3 bg-surface-elevated border-t border-border flex items-center justify-between animate-slide-up">
               <div className="flex items-center gap-3">
                 <div className="relative size-12 rounded-xl overflow-hidden border border-accent/40 shadow-sm shrink-0">
-                  <img src={selectedImage} alt="Selected preview" className="w-full h-full object-cover" />
+                  <img
+                    src={selectedImage}
+                    alt="Selected preview"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div>
                   <p className="text-xs font-bold flex items-center gap-1.5">
@@ -1070,7 +1149,7 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isPending}
                 title="Upload photo of product or shop"
-                className="p-2.5 rounded-full text-muted-foreground hover:text-accent hover:bg-secondary transition-colors disabled:opacity-50"
+                className="p-2.5 rounded-full text-muted-foreground hover:text-accent hover:bg-secondary transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
               >
                 <ImageIcon className="size-5" />
               </button>
@@ -1090,7 +1169,7 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                 onClick={() => cameraInputRef.current?.click()}
                 disabled={isPending}
                 title="Take photo with camera"
-                className="p-2.5 rounded-full text-muted-foreground hover:text-accent hover:bg-secondary transition-colors disabled:opacity-50"
+                className="p-2.5 rounded-full text-muted-foreground hover:text-accent hover:bg-secondary transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
               >
                 <Camera className="size-5" />
               </button>
@@ -1109,9 +1188,9 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
               <button
                 type="submit"
                 disabled={isPending || (!inputText.trim() && !selectedImage)}
-                className="bg-foreground text-background p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-40 disabled:hover:bg-foreground disabled:hover:text-background shrink-0"
+                className="bg-foreground text-background p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-40 disabled:hover:bg-foreground disabled:hover:text-background shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
               >
-                <Send className="size-4" />
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
               </button>
             </form>
           </div>
@@ -1138,10 +1217,11 @@ export function ChatAssistant({ initialQuery = "" }: { initialQuery?: string }) 
                       lat: pos.coords.latitude,
                       lng: pos.coords.longitude,
                       label: "Your Current Location",
+                      isGPS: true,
                     });
                     toast.success("Recentered on your location!");
                   },
-                  () => toast.error("Location unavailable.")
+                  () => toast.error("Location unavailable."),
                 );
               }
             }}

@@ -7,7 +7,6 @@ export function Footer() {
       {/* 4-column grid */}
       <div className="max-w-7xl mx-auto px-6 pt-16 pb-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-background/10">
-
           {/* Brand */}
           <div className="space-y-5">
             <span className="text-xl font-bold tracking-tighter uppercase">Synthetix</span>
@@ -15,26 +14,42 @@ export function Footer() {
               The marketplace that shops and sells with you. AI-first discovery, human-first design.
             </p>
             <div className="flex gap-2.5 pt-1">
-              {[
-                { Icon: Twitter, label: "Twitter" },
-                { Icon: Instagram, label: "Instagram" },
-                { Icon: Linkedin, label: "LinkedIn" },
-              ].map(({ Icon, label }) => (
-                <a
-                  key={label}
-                  href="#"
-                  aria-label={label}
-                  className="size-9 rounded-full bg-background/10 flex items-center justify-center hover:bg-accent/80 transition-colors"
-                >
-                  <Icon className="size-4" />
-                </a>
-              ))}
+              <a
+                href="https://instagram.com/anshojha420"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="size-9 rounded-full bg-background/10 flex items-center justify-center hover:bg-accent/80 transition-colors text-background hover:text-foreground"
+                title="Instagram @anshojha420"
+              >
+                <Instagram className="size-4" />
+              </a>
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Twitter"
+                className="size-9 rounded-full bg-background/10 flex items-center justify-center hover:bg-accent/80 transition-colors text-background hover:text-foreground"
+              >
+                <Twitter className="size-4" />
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="size-9 rounded-full bg-background/10 flex items-center justify-center hover:bg-accent/80 transition-colors text-background hover:text-foreground"
+              >
+                <Linkedin className="size-4" />
+              </a>
             </div>
           </div>
 
           {/* Marketplace */}
           <div>
-            <h4 className="text-[11px] font-mono uppercase tracking-widest text-background/40 mb-5">Marketplace</h4>
+            <h4 className="text-[11px] font-mono uppercase tracking-widest text-background/40 mb-5">
+              Marketplace
+            </h4>
             <ul className="space-y-3 text-sm text-background/70">
               {[
                 { label: "Browse", href: "/" },
@@ -54,7 +69,9 @@ export function Footer() {
 
           {/* Sellers */}
           <div>
-            <h4 className="text-[11px] font-mono uppercase tracking-widest text-background/40 mb-5">Sellers</h4>
+            <h4 className="text-[11px] font-mono uppercase tracking-widest text-background/40 mb-5">
+              Sellers
+            </h4>
             <ul className="space-y-3 text-sm text-background/70">
               {[
                 { label: "Start selling", href: "/auth?mode=signup&role=seller" },
@@ -74,9 +91,12 @@ export function Footer() {
 
           {/* Support + Contact */}
           <div>
-            <h4 className="text-[11px] font-mono uppercase tracking-widest text-background/40 mb-5">Support</h4>
+            <h4 className="text-[11px] font-mono uppercase tracking-widest text-background/40 mb-5">
+              Support
+            </h4>
             <ul className="space-y-3 text-sm text-background/70 mb-6">
               {[
+                { label: "Contact Support ✉️", href: "/contact" },
                 { label: "FAQ", href: "/faq" },
                 { label: "Terms of service", href: "/faq" },
                 { label: "Privacy policy", href: "/faq" },
@@ -89,9 +109,10 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-            <div className="space-y-1.5 text-xs text-background/40 font-mono">
+            <div className="space-y-1.5 text-xs text-background/60 font-mono">
+              <div><a href="mailto:anshojha420@gmail.com" className="hover:underline text-accent">anshojha420@gmail.com</a></div>
               <div>support@synthetix.io</div>
-              <div>San Francisco, CA 94102</div>
+              <div>San Francisco & LPU Campus</div>
             </div>
           </div>
         </div>
@@ -100,10 +121,18 @@ export function Footer() {
         <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-background/35 font-mono">
           <span>© 2026 Synthetix Inc. · AI-powered marketplace</span>
           <div className="flex gap-6">
-            <Link to="/faq" className="hover:text-background/60 transition-colors">Terms</Link>
-            <Link to="/faq" className="hover:text-background/60 transition-colors">Privacy</Link>
-            <Link to="/faq" className="hover:text-background/60 transition-colors">Cookies</Link>
-            <Link to="/about" className="hover:text-background/60 transition-colors">AI Ethics</Link>
+            <Link to="/faq" className="hover:text-background/60 transition-colors">
+              Terms
+            </Link>
+            <Link to="/faq" className="hover:text-background/60 transition-colors">
+              Privacy
+            </Link>
+            <Link to="/faq" className="hover:text-background/60 transition-colors">
+              Cookies
+            </Link>
+            <Link to="/about" className="hover:text-background/60 transition-colors">
+              AI Ethics
+            </Link>
           </div>
         </div>
       </div>

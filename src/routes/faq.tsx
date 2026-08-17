@@ -7,7 +7,11 @@ export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
       { title: "FAQ — Synthetix" },
-      { name: "description", content: "Answers to common questions about Synthetix — buying, selling, AI features, commissions, and payouts." },
+      {
+        name: "description",
+        content:
+          "Answers to common questions about Synthetix — buying, selling, AI features, commissions, and payouts.",
+      },
     ],
   }),
   component: FAQPage,
@@ -77,13 +81,23 @@ function FAQPage() {
       <Nav />
 
       <section className="max-w-3xl mx-auto pt-20 pb-12 px-6 text-center animate-slide-up">
-        <span className="font-mono text-[10px] uppercase tracking-widest text-accent">Help center</span>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-accent">
+          Help center
+        </span>
         <h1 className="text-5xl font-bold tracking-tight mt-4 mb-6">
-          Frequently asked <span className="font-display italic font-normal text-accent">questions</span>.
+          Frequently asked{" "}
+          <span className="font-display italic font-normal text-accent">questions</span>.
         </h1>
         <p className="text-lg text-muted-foreground">
-          Everything you need to know about buying and selling on Synthetix. Can't find what you need?{" "}
-          <a href="mailto:support@synthetix.io" className="text-accent underline underline-offset-4">Email us</a>.
+          Everything you need to know about buying and selling on Synthetix. Can't find what you
+          need?{" "}
+          <a
+            href="mailto:support@synthetix.io"
+            className="text-accent underline underline-offset-4"
+          >
+            Email us
+          </a>
+          .
         </p>
       </section>
 
@@ -108,7 +122,9 @@ function FAQPage() {
       <section className="max-w-3xl mx-auto px-6 pb-24">
         <div className="bg-foreground text-background rounded-2xl p-10 text-center">
           <h2 className="text-2xl font-bold mb-3">Still have questions?</h2>
-          <p className="text-background/60 mb-6">Our team responds within 24 hours on business days.</p>
+          <p className="text-background/60 mb-6">
+            Our team responds within 24 hours on business days.
+          </p>
           <a
             href="mailto:support@synthetix.io"
             className="inline-block bg-background text-foreground px-8 py-3 rounded-full font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -133,7 +149,11 @@ function FAQItem({ q, a }: { q: string; a: string }) {
         aria-expanded={open}
       >
         <span>{q}</span>
-        <span className={`text-accent font-mono text-2xl leading-none shrink-0 transition-transform duration-200 ${open ? "rotate-45" : ""}`}>+</span>
+        <span
+          className={`text-accent font-mono text-2xl leading-none shrink-0 transition-transform duration-200 ${open ? "rotate-45" : ""}`}
+        >
+          +
+        </span>
       </button>
       {open && (
         <div className="px-6 pb-5 text-sm text-muted-foreground leading-relaxed border-t border-border pt-4 animate-fade-in">

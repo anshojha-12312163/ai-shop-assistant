@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Star, MapPin, Phone, ExternalLink, Sparkles, Heart } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Star, MapPin, Phone, ExternalLink, Sparkles, Heart, MessageSquare } from "lucide-react";
 import type { ShopResultItem } from "@/lib/ai.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { getCategoryPlaceholderSvg } from "@/lib/image-helpers";
+import { getShopWhatsAppUrl } from "@/lib/whatsapp";
 import { toast } from "sonner";
 
 interface ShopCardProps {
@@ -31,7 +33,7 @@ export function ShopCard({
   const isFav = externalIsFavorite ?? internalFav;
 
   const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    `${shop.name} ${shop.address}`
+    `${shop.name} ${shop.address}`,
   )}`;
 
   async function handleFavClick(e: React.MouseEvent) {
@@ -91,8 +93,8 @@ export function ShopCard({
         isSelected
           ? "border-accent ring-2 ring-accent/50 shadow-xl scale-[1.02]"
           : isHovered
-          ? "border-amber-400 ring-2 ring-amber-400/40 shadow-lg scale-[1.01]"
-          : "border-border hover:border-accent/40"
+            ? "border-amber-400 ring-2 ring-amber-400/40 shadow-lg scale-[1.01]"
+            : "border-border hover:border-accent/40"
       }`}
     >
       <div>
@@ -105,12 +107,19 @@ export function ShopCard({
                 : getCategoryPlaceholderSvg(shop.category, shop.name)
             }
             alt={shop.name}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
-          {/* Category Badge & Open Pill */}
-          <div className="absolute top-3 left-3 flex gap-2">
+          {/* Category Badge, Sponsored Badge & Open Pill */}
+          <div className="absolute top-3 left-3 flex items-center gap-2 flex-wrap">
+            {((shop as any).is_sponsored || (shop as any).sponsored_until) && (
+              <span className="bg-amber-400 text-amber-950 font-mono text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm">
+                ★ Sponsored
+              </span>
+            )}
             <span className="bg-black/60 backdrop-blur-md text-white text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full border border-white/20">
               {shop.category}
             </span>
@@ -159,7 +168,7 @@ export function ShopCard({
               {shop.distance_miles !== undefined && (
                 <>
                   <span>•</span>
-                  <span className="font-mono text-[11px]">{shop.distance_miles} miles away</span>
+                  <span className="font-mono text-[11px]">{shop.distance_miles} km away</span>
                 </>
               )}
             </div>
@@ -188,11 +197,14 @@ export function ShopCard({
       </div>
 
       {/* Action Footer */}
-      <div className="px-5 pb-5 pt-2 border-t border-border/50 flex gap-2" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="px-5 pb-5 pt-2 border-t border-border/50 flex flex-wrap gap-2 items-center"
+        onClick={(e) => e.stopPropagation()}
+      >
         {onViewDetails && (
           <button
             onClick={() => onViewDetails(shop.place_id || shop.id)}
-            className="px-4 bg-accent text-accent-foreground hover:bg-accent/90 text-xs font-bold py-2.5 rounded-full transition-colors shrink-0"
+            className="px-3.5 bg-accent text-accent-foreground hover:bg-accent/90 text-xs font-bold py-2 rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[38px]"
           >
             Details
           </button>
@@ -201,7 +213,7 @@ export function ShopCard({
           href={directionsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 bg-foreground text-background hover:bg-accent hover:text-accent-foreground text-xs font-bold py-2.5 rounded-full flex items-center justify-center gap-1.5 transition-colors"
+          className="flex-1 min-w-[100px] bg-foreground text-background hover:bg-accent hover:text-accent-foreground text-xs font-bold py-2 rounded-full flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[38px]"
         >
           <ExternalLink className="size-3.5" />
           Directions
@@ -209,12 +221,32 @@ export function ShopCard({
         {shop.phone && (
           <a
             href={`tel:${shop.phone.replace(/[^0-9]/g, "")}`}
-            className="px-4 border border-border text-foreground hover:bg-secondary text-xs font-semibold py-2.5 rounded-full flex items-center justify-center gap-1.5 transition-colors"
+            className="px-3 border border-border text-foreground hover:bg-secondary text-xs font-semibold py-2 rounded-full flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[38px]"
           >
-            <Phone className="size-3.5" />
+            <Phone className="size-3.5 text-sky-500" />
             Call
           </a>
         )}
+        {getShopWhatsAppUrl((shop as any).whatsapp_number || shop.phone, shop.name) && (
+          <a
+            href={getShopWhatsAppUrl((shop as any).whatsapp_number || shop.phone, shop.name)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 bg-emerald-600/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-600/20 text-xs font-bold py-2 rounded-full flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 min-h-[38px]"
+          >
+            <MessageSquare className="size-3.5 text-emerald-500" />
+            WhatsApp
+          </a>
+        )}
+        <Link
+          to="/discover"
+          search={{ q: `Tell me about ${shop.name} in ${shop.category}` }}
+          className="px-3 border border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 text-xs font-bold py-2 rounded-full flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 min-h-[38px]"
+          title="Ask AI Assistant about this shop"
+        >
+          <Sparkles className="size-3" />
+          Ask AI
+        </Link>
       </div>
     </div>
   );

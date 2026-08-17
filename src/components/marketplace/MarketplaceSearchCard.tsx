@@ -16,7 +16,8 @@ const PLATFORMS: PlatformItem[] = [
     name: "Amazon",
     categoryRelevance: ["electronics", "home", "books", "fashion", "footwear", "general"],
     searchUrl: (q) => `https://www.amazon.in/s?k=${encodeURIComponent(q)}`,
-    color: "from-amber-500/20 to-orange-500/20 border-amber-500/30 text-amber-600 dark:text-amber-400",
+    color:
+      "from-amber-500/20 to-orange-500/20 border-amber-500/30 text-amber-600 dark:text-amber-400",
     badge: "Prime Shipping",
     priceEstimate: "$24.99 - $120",
     rating: 4.6,
@@ -43,7 +44,8 @@ const PLATFORMS: PlatformItem[] = [
     name: "Nykaa",
     categoryRelevance: ["beauty", "cosmetics", "skincare", "pharmacy", "wellness"],
     searchUrl: (q) => `https://www.nykaa.com/search/result/?q=${encodeURIComponent(q)}`,
-    color: "from-purple-500/20 to-fuchsia-500/20 border-purple-500/30 text-purple-600 dark:text-purple-400",
+    color:
+      "from-purple-500/20 to-fuchsia-500/20 border-purple-500/30 text-purple-600 dark:text-purple-400",
     badge: "Beauty & Wellness",
     priceEstimate: "$12.99 - $45",
     rating: 4.8,
@@ -115,7 +117,8 @@ export function MarketplaceSearchCard({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Comparing online availability for <strong>"{query}"</strong> across major e-commerce platforms:
+        Comparing online availability for <strong>"{query}"</strong> across major e-commerce
+        platforms:
       </p>
 
       {/* Grid of Platform Outbound Search Link Cards */}

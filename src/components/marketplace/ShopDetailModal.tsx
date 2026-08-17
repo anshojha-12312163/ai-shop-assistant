@@ -1,8 +1,22 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { fetchPlaceDetails, type PlaceDetailResult } from "@/lib/ai.functions";
-import { X, Star, MapPin, Phone, Globe, ExternalLink, Clock, Loader2, Sparkles, UserCheck, Navigation, Info } from "lucide-react";
+import {
+  X,
+  Star,
+  MapPin,
+  Phone,
+  Globe,
+  ExternalLink,
+  Clock,
+  Loader2,
+  Sparkles,
+  UserCheck,
+  Navigation,
+  Info,
+} from "lucide-react";
 import { MapRoutingView } from "./MapRoutingView";
+import { ShopReviewsSection } from "./ShopReviewsSection";
 
 interface ShopDetailModalProps {
   placeId: string | null;
@@ -54,7 +68,7 @@ export function ShopDetailModal({
   if (!placeId) return null;
 
   const destinationCoords = {
-    lat: details?.lat ?? 47.6090,
+    lat: details?.lat ?? 47.609,
     lng: details?.lng ?? -122.3385,
     name: details?.name ?? "Matched Local Shop",
     address: details?.address ?? "Seattle, WA",
@@ -147,7 +161,9 @@ export function ShopDetailModal({
                 <button
                   onClick={() => setActiveTab("details")}
                   className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
-                    activeTab === "details" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                    activeTab === "details"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground"
                   }`}
                 >
                   Shop Info & Reviews
@@ -155,7 +171,9 @@ export function ShopDetailModal({
                 <button
                   onClick={() => setActiveTab("route")}
                   className={`px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all ${
-                    activeTab === "route" ? "bg-accent text-accent-foreground shadow-sm" : "text-muted-foreground"
+                    activeTab === "route"
+                      ? "bg-accent text-accent-foreground shadow-sm"
+                      : "text-muted-foreground"
                   }`}
                 >
                   <Navigation className="size-3.5" />
@@ -212,86 +230,49 @@ export function ShopDetailModal({
 
                   {/* Address & Hours Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <h4 className="font-mono text-xs uppercase tracking-widest text-accent font-bold flex items-center gap-1.5">
-                    <MapPin className="size-3.5" />
-                    Address & Contact
-                  </h4>
-                  <p className="text-sm font-medium leading-relaxed">{details.address}</p>
-                  {details.phone && (
-                    <p className="text-xs text-muted-foreground flex items-center gap-2">
-                      <Phone className="size-3.5 text-accent" />
-                      {details.phone}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="font-mono text-xs uppercase tracking-widest text-accent font-bold flex items-center gap-1.5">
-                    <Clock className="size-3.5" />
-                    Operating Hours
-                  </h4>
-                  <ul className="text-xs space-y-1 text-muted-foreground font-mono">
-                    {details.weekday_text.map((day, idx) => (
-                      <li key={idx} className="flex justify-between">
-                        <span>{day}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Customer Reviews Section */}
-              {details.reviews && details.reviews.length > 0 && (
-                <div className="space-y-4 pt-4 border-t border-border">
-                  <h4 className="font-mono text-xs uppercase tracking-widest text-accent font-bold flex items-center gap-1.5">
-                    <UserCheck className="size-3.5" />
-                    Google Customer Reviews ({details.reviews.length})
-                  </h4>
-                  <div className="space-y-3">
-                    {details.reviews.map((rev, idx) => (
-                      <div
-                        key={idx}
-                        className="p-4 bg-secondary/30 border border-border/60 rounded-2xl space-y-2 text-xs"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {rev.profile_photo_url ? (
-                              <img
-                                src={rev.profile_photo_url}
-                                alt={rev.author_name}
-                                className="size-6 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="size-6 rounded-full bg-accent/20 text-accent font-bold flex items-center justify-center text-[10px]">
-                                {rev.author_name.slice(0, 2).toUpperCase()}
-                              </div>
-                            )}
-                            <span className="font-bold text-foreground">{rev.author_name}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Star className="size-3 text-amber-400 fill-amber-400" />
-                            <span className="font-bold">{rev.rating}</span>
-                            <span className="text-[10px] text-muted-foreground font-mono ml-1">
-                              {rev.relative_time}
-                            </span>
-                          </div>
-                        </div>
-                        <p className="text-muted-foreground leading-relaxed italic">
-                          "{rev.text}"
+                    <div className="space-y-3">
+                      <h4 className="font-mono text-xs uppercase tracking-widest text-accent font-bold flex items-center gap-1.5">
+                        <MapPin className="size-3.5" />
+                        Address & Contact
+                      </h4>
+                      <p className="text-sm font-medium leading-relaxed">{details.address}</p>
+                      {details.phone && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-2">
+                          <Phone className="size-3.5 text-accent" />
+                          {details.phone}
                         </p>
-                      </div>
-                    ))}
+                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-mono text-xs uppercase tracking-widest text-accent font-bold flex items-center gap-1.5">
+                        <Clock className="size-3.5" />
+                        Operating Hours
+                      </h4>
+                      <ul className="text-xs space-y-1 text-muted-foreground font-mono">
+                        {details.weekday_text.map((day, idx) => (
+                          <li key={idx} className="flex justify-between">
+                            <span>{day}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                </div>
+
+                  {/* In-App Customer Ratings & Feedback Section */}
+                  <ShopReviewsSection
+                    shopId={placeId}
+                    shopName={details.name}
+                    googleRating={details.rating}
+                    googleTotalReviews={details.user_ratings_total}
+                  />
+                </>
               )}
-            </>
-          )}
-        </div>
-      </div>
-    ) : (
-      <div className="p-12 text-center text-muted-foreground">Could not load details.</div>
-    )}
+            </div>
+          </div>
+        ) : (
+          <div className="p-12 text-center text-muted-foreground">Could not load details.</div>
+        )}
       </div>
     </div>
   );

@@ -53,9 +53,9 @@ function calculateDistanceMiles(lat1: number, lon1: number, lat2: number, lon2: 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return Math.round(R * c * 10) / 10;
 }
@@ -72,11 +72,16 @@ serve(async (req) => {
   const payload: RequestPayload = await req.json().catch(() => ({}));
   const message = payload.message?.trim() ?? "";
   const imageBase64 = payload.image;
-  const userLocation = payload.location ?? { lat: 47.6062, lng: -122.3321, label: "Downtown Seattle, WA" };
+  const userLocation = payload.location ?? {
+    lat: 47.6062,
+    lng: -122.3321,
+    label: "Downtown Seattle, WA",
+  };
 
   const apiKey = Deno.env.get("LOVABLE_API_KEY") || Deno.env.get("GEMINI_API_KEY");
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
+  const supabaseKey =
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
 
   // Create SSE ReadableStream
   const stream = new ReadableStream({
@@ -192,14 +197,26 @@ Return STRICT JSON with keys:
           const preposedMatch = message.match(/(?:in|near|at|around)\s+([A-Za-z0-9\s,]+)/i);
           if (preposedMatch?.[1]) {
             candidatePlace = preposedMatch[1].trim();
-          } else if (words.length >= 2 && lastWord.length > 2 && !["shoes", "gear", "store", "shop", "cafe", "coffee", "food", "wear"].includes(lastWord.toLowerCase())) {
+          } else if (
+            words.length >= 2 &&
+            lastWord.length > 2 &&
+            !["shoes", "gear", "store", "shop", "cafe", "coffee", "food", "wear"].includes(
+              lastWord.toLowerCase(),
+            )
+          ) {
             candidatePlace = lastWord;
           }
 
-          if (candidatePlace && candidatePlace.length > 2 && !["me", "here", "location", "area", "near"].includes(candidatePlace.toLowerCase())) {
+          if (
+            candidatePlace &&
+            candidatePlace.length > 2 &&
+            !["me", "here", "location", "area", "near"].includes(candidatePlace.toLowerCase())
+          ) {
             try {
               const geoUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(candidatePlace)}&format=json&limit=1`;
-              const geoRes = await fetch(geoUrl, { headers: { "User-Agent": "SynthetixAIShopAssistant/1.0" } });
+              const geoRes = await fetch(geoUrl, {
+                headers: { "User-Agent": "SynthetixAIShopAssistant/1.0" },
+              });
               if (geoRes.ok) {
                 const geoData = await geoRes.json();
                 if (Array.isArray(geoData) && geoData.length > 0) {
@@ -220,7 +237,9 @@ Return STRICT JSON with keys:
           }
         }
 
-        const locationLabel = activeLocation.label || `${activeLocation.lat.toFixed(4)}, ${activeLocation.lng.toFixed(4)}`;
+        const locationLabel =
+          activeLocation.label ||
+          `${activeLocation.lat.toFixed(4)}, ${activeLocation.lng.toFixed(4)}`;
         const locDetail = `using location: ${locationLabel}`;
 
         agentSteps.push({
@@ -233,7 +252,12 @@ Return STRICT JSON with keys:
           type: "agent_done",
           agent: "Location Agent",
           detail: locDetail,
-          result: { lat: activeLocation.lat, lng: activeLocation.lng, locationLabel, locationWarning },
+          result: {
+            lat: activeLocation.lat,
+            lng: activeLocation.lng,
+            locationLabel,
+            locationWarning,
+          },
         });
 
         await sleep(350);
@@ -244,13 +268,23 @@ Return STRICT JSON with keys:
         sendEvent({ type: "agent_start", agent: "Search Agent" });
 
         let candidates: ShopItem[] = [];
-        const placesApiKey = Deno.env.get("GOOGLE_PLACES_API_KEY") || Deno.env.get("PLACES_API_KEY");
+        const placesApiKey =
+          Deno.env.get("GOOGLE_PLACES_API_KEY") || Deno.env.get("PLACES_API_KEY");
         const searchCategory = imageAnalysis?.category || "All";
         const searchKeyword = message || imageAnalysis?.detectedLabel || "";
 
         if (placesApiKey) {
           try {
-            const placesRes = await fetch("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + userLocation.lat + "," + userLocation.lng + "&radius=8000&keyword=" + encodeURIComponent(searchKeyword) + "&key=" + placesApiKey);
+            const placesRes = await fetch(
+              "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
+              userLocation.lat +
+              "," +
+              userLocation.lng +
+              "&radius=8000&keyword=" +
+              encodeURIComponent(searchKeyword) +
+              "&key=" +
+              placesApiKey,
+            );
             if (placesRes.ok) {
               const pData = await placesRes.json();
               if (pData.results && Array.isArray(pData.results) && pData.results.length > 0) {
@@ -259,8 +293,13 @@ Return STRICT JSON with keys:
                   return {
                     id: p.place_id,
                     name: p.name,
-                    category: searchCategory !== "All" ? searchCategory : (p.types?.[0]?.replace(/_/g, " ") ?? "Retail"),
-                    description: p.vicinity ? `Located at ${p.vicinity}. Verified nearby local business.` : "Local business",
+                    category:
+                      searchCategory !== "All"
+                        ? searchCategory
+                        : (p.types?.[0]?.replace(/_/g, " ") ?? "Retail"),
+                    description: p.vicinity
+                      ? `Located at ${p.vicinity}. Verified nearby local business.`
+                      : "Local business",
                     address: p.vicinity ?? "Seattle, WA",
                     lat: p.geometry?.location?.lat ?? userLocation.lat,
                     lng: p.geometry?.location?.lng ?? userLocation.lng,
@@ -295,10 +334,13 @@ Return STRICT JSON with keys:
 
         if (candidates.length === 0) {
           const catPhotos = {
-            footwear: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop",
+            footwear:
+              "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop",
             cafe: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop",
-            pharmacy: "https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=800&auto=format&fit=crop",
-            outdoor: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&auto=format&fit=crop",
+            pharmacy:
+              "https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=800&auto=format&fit=crop",
+            outdoor:
+              "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&auto=format&fit=crop",
           };
 
           candidates = [
@@ -306,7 +348,8 @@ Return STRICT JSON with keys:
               id: "shop-1",
               name: "Sole Craft Athletics",
               category: "Footwear",
-              description: "Artisan sneaker & performance running shoe boutique featuring custom fitting.",
+              description:
+                "Artisan sneaker & performance running shoe boutique featuring custom fitting.",
               address: "Local High Street, Nearby",
               lat: userLocation.lat + 0.005,
               lng: userLocation.lng - 0.007,
@@ -334,7 +377,8 @@ Return STRICT JSON with keys:
               id: "shop-3",
               name: "Apothecary & Wellness Co.",
               category: "Pharmacy",
-              description: "Full-service pharmacy offering natural wellness products and prescriptions.",
+              description:
+                "Full-service pharmacy offering natural wellness products and prescriptions.",
               address: "Central Market, Nearby",
               lat: userLocation.lat + 0.009,
               lng: userLocation.lng + 0.004,
@@ -366,7 +410,7 @@ Return STRICT JSON with keys:
             userLocation.lat,
             userLocation.lng,
             shop.lat,
-            shop.lng
+            shop.lng,
           );
         });
 
@@ -403,8 +447,15 @@ Return STRICT JSON with keys:
           const shopDesc = shop.description.toLowerCase();
 
           if (targetCategory && shopCat.includes(targetCategory)) score += 35;
-          if (targetLabel && (shopName.includes(targetLabel) || shopDesc.includes(targetLabel))) score += 15;
-          if (queryLower && (shopCat.includes(queryLower) || shopName.includes(queryLower) || shopDesc.includes(queryLower))) score += 20;
+          if (targetLabel && (shopName.includes(targetLabel) || shopDesc.includes(targetLabel)))
+            score += 15;
+          if (
+            queryLower &&
+            (shopCat.includes(queryLower) ||
+              shopName.includes(queryLower) ||
+              shopDesc.includes(queryLower))
+          )
+            score += 20;
           if (shop.rating >= 4.8) score += 10;
           else if (shop.rating >= 4.5) score += 5;
           if (shop.open_now) score += 10;
@@ -443,9 +494,11 @@ Return STRICT JSON with keys:
           if (imageAnalysis?.category) {
             const cat = imageAnalysis.category.toLowerCase();
             const sCat = shop.category.toLowerCase();
-            if (cat.includes("footwear") && !sCat.includes("footwear") && !sCat.includes("outdoor")) return false;
+            if (cat.includes("footwear") && !sCat.includes("footwear") && !sCat.includes("outdoor"))
+              return false;
             if (cat.includes("pharmacy") && !sCat.includes("pharmacy")) return false;
-            if (cat.includes("cafe") && !sCat.includes("cafe") && !sCat.includes("bakery")) return false;
+            if (cat.includes("cafe") && !sCat.includes("cafe") && !sCat.includes("bakery"))
+              return false;
           }
           return true;
         });
@@ -510,7 +563,9 @@ Verified Shops: ${JSON.stringify(shortlist.map((s) => ({ name: s.name, category:
         }
 
         if (!reply) {
-          const locStr = locationLabel.toLowerCase().includes("location") ? locationLabel : `near ${locationLabel}`;
+          const locStr = locationLabel.toLowerCase().includes("location")
+            ? locationLabel
+            : `near ${locationLabel}`;
           const warnPrefix = locationWarning ? `${locationWarning}\n\n` : "";
           if (imageAnalysis) {
             reply = `${warnPrefix}I recognized **${imageAnalysis.detectedLabel}** in your photo! Here are the top verified local shops ${locStr} matching your search.`;
@@ -564,7 +619,7 @@ Verified Shops: ${JSON.stringify(shortlist.map((s) => ({ name: s.name, category:
       ...corsHeaders,
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
+      Connection: "keep-alive",
     },
   });
 });

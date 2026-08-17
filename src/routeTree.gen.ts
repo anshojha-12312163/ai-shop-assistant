@@ -14,9 +14,15 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as LensRouteImport } from './routes/lens'
+import { Route as MerchantRouteImport } from './routes/merchant'
+import { Route as MerchantsRouteImport } from './routes/merchants'
+import { Route as NearbyRouteImport } from './routes/nearby'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as WhatsappInventoryRouteImport } from './routes/whatsapp-inventory'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedSellerRouteImport } from './routes/_authenticated/seller'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
@@ -46,6 +52,11 @@ const CartRoute = CartRouteImport.update({
   path: '/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DiscoverRoute = DiscoverRouteImport.update({
   id: '/discover',
   path: '/discover',
@@ -56,9 +67,34 @@ const FaqRoute = FaqRouteImport.update({
   path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LensRoute = LensRouteImport.update({
+  id: '/lens',
+  path: '/lens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MerchantRoute = MerchantRouteImport.update({
+  id: '/merchant',
+  path: '/merchant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MerchantsRoute = MerchantsRouteImport.update({
+  id: '/merchants',
+  path: '/merchants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NearbyRoute = NearbyRouteImport.update({
+  id: '/nearby',
+  path: '/nearby',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WhatsappInventoryRoute = WhatsappInventoryRouteImport.update({
+  id: '/whatsapp-inventory',
+  path: '/whatsapp-inventory',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
@@ -87,9 +123,15 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/contact': typeof ContactRoute
   '/discover': typeof DiscoverRoute
   '/faq': typeof FaqRoute
+  '/lens': typeof LensRoute
+  '/merchant': typeof MerchantRoute
+  '/merchants': typeof MerchantsRoute
+  '/nearby': typeof NearbyRoute
   '/pricing': typeof PricingRoute
+  '/whatsapp-inventory': typeof WhatsappInventoryRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/seller': typeof AuthenticatedSellerRouteWithChildren
   '/product/$id': typeof ProductIdRoute
@@ -100,9 +142,15 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/contact': typeof ContactRoute
   '/discover': typeof DiscoverRoute
   '/faq': typeof FaqRoute
+  '/lens': typeof LensRoute
+  '/merchant': typeof MerchantRoute
+  '/merchants': typeof MerchantsRoute
+  '/nearby': typeof NearbyRoute
   '/pricing': typeof PricingRoute
+  '/whatsapp-inventory': typeof WhatsappInventoryRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/seller': typeof AuthenticatedSellerRouteWithChildren
   '/product/$id': typeof ProductIdRoute
@@ -115,9 +163,15 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/contact': typeof ContactRoute
   '/discover': typeof DiscoverRoute
   '/faq': typeof FaqRoute
+  '/lens': typeof LensRoute
+  '/merchant': typeof MerchantRoute
+  '/merchants': typeof MerchantsRoute
+  '/nearby': typeof NearbyRoute
   '/pricing': typeof PricingRoute
+  '/whatsapp-inventory': typeof WhatsappInventoryRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/seller': typeof AuthenticatedSellerRouteWithChildren
   '/product/$id': typeof ProductIdRoute
@@ -130,9 +184,15 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/cart'
+    | '/contact'
     | '/discover'
     | '/faq'
+    | '/lens'
+    | '/merchant'
+    | '/merchants'
+    | '/nearby'
     | '/pricing'
+    | '/whatsapp-inventory'
     | '/profile'
     | '/seller'
     | '/product/$id'
@@ -143,9 +203,15 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/cart'
+    | '/contact'
     | '/discover'
     | '/faq'
+    | '/lens'
+    | '/merchant'
+    | '/merchants'
+    | '/nearby'
     | '/pricing'
+    | '/whatsapp-inventory'
     | '/profile'
     | '/seller'
     | '/product/$id'
@@ -157,9 +223,15 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/cart'
+    | '/contact'
     | '/discover'
     | '/faq'
+    | '/lens'
+    | '/merchant'
+    | '/merchants'
+    | '/nearby'
     | '/pricing'
+    | '/whatsapp-inventory'
     | '/_authenticated/profile'
     | '/_authenticated/seller'
     | '/product/$id'
@@ -172,9 +244,15 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
+  ContactRoute: typeof ContactRoute
   DiscoverRoute: typeof DiscoverRoute
   FaqRoute: typeof FaqRoute
+  LensRoute: typeof LensRoute
+  MerchantRoute: typeof MerchantRoute
+  MerchantsRoute: typeof MerchantsRoute
+  NearbyRoute: typeof NearbyRoute
   PricingRoute: typeof PricingRoute
+  WhatsappInventoryRoute: typeof WhatsappInventoryRoute
   ProductIdRoute: typeof ProductIdRoute
 }
 
@@ -215,6 +293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/discover': {
       id: '/discover'
       path: '/discover'
@@ -229,11 +314,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lens': {
+      id: '/lens'
+      path: '/lens'
+      fullPath: '/lens'
+      preLoaderRoute: typeof LensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/merchant': {
+      id: '/merchant'
+      path: '/merchant'
+      fullPath: '/merchant'
+      preLoaderRoute: typeof MerchantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/merchants': {
+      id: '/merchants'
+      path: '/merchants'
+      fullPath: '/merchants'
+      preLoaderRoute: typeof MerchantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nearby': {
+      id: '/nearby'
+      path: '/nearby'
+      fullPath: '/nearby'
+      preLoaderRoute: typeof NearbyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/whatsapp-inventory': {
+      id: '/whatsapp-inventory'
+      path: '/whatsapp-inventory'
+      fullPath: '/whatsapp-inventory'
+      preLoaderRoute: typeof WhatsappInventoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/profile': {
@@ -297,9 +417,15 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
+  ContactRoute: ContactRoute,
   DiscoverRoute: DiscoverRoute,
   FaqRoute: FaqRoute,
+  LensRoute: LensRoute,
+  MerchantRoute: MerchantRoute,
+  MerchantsRoute: MerchantsRoute,
+  NearbyRoute: NearbyRoute,
   PricingRoute: PricingRoute,
+  WhatsappInventoryRoute: WhatsappInventoryRoute,
   ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,50 +1,63 @@
-export function getCategoryPlaceholderSvg(category: string, shopName: string): string {
-  const cat = category.toLowerCase();
-  let bg = "#0F172A";
-  let accent = "#0D9488";
-  let iconText = "🛍️";
-  let label = category || "Store";
+const CATEGORY_IMAGES: Record<string, string[]> = {
+  zudio: [
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800&auto=format&fit=crop&q=80",
+  ],
+  fashion: [
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&auto=format&fit=crop&q=80",
+  ],
+  footwear: [
+    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&auto=format&fit=crop&q=80",
+  ],
+  cafe: [
+    "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=800&auto=format&fit=crop&q=80",
+  ],
+  pharmacy: [
+    "https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1576602976047-174e57a47881?w=800&auto=format&fit=crop&q=80",
+  ],
+  supermarket: [
+    "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800&auto=format&fit=crop&q=80",
+  ],
+  grocery: [
+    "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800&auto=format&fit=crop&q=80",
+  ],
+  electronics: [
+    "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&auto=format&fit=crop&q=80",
+  ],
+  outdoor: [
+    "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&auto=format&fit=crop&q=80",
+  ],
+  home: [
+    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=800&auto=format&fit=crop&q=80",
+  ],
+};
 
-  if (cat.includes("footwear") || cat.includes("shoe")) {
-    bg = "#0F172A";
-    accent = "#0D9488";
-    iconText = "👟";
-    label = "Footwear & Shoes";
-  } else if (cat.includes("cafe") || cat.includes("coffee")) {
-    bg = "#1C1917";
-    accent = "#D97706";
-    iconText = "☕";
-    label = "Cafe & Espresso";
-  } else if (cat.includes("pharmacy") || cat.includes("medicine")) {
-    bg = "#022C22";
-    accent = "#059669";
-    iconText = "💊";
-    label = "Pharmacy & Wellness";
-  } else if (cat.includes("outdoor") || cat.includes("hiking")) {
-    bg = "#064E3B";
-    accent = "#10B981";
-    iconText = "⛺";
-    label = "Outdoor Adventure";
-  } else if (cat.includes("home") || cat.includes("ceramic")) {
-    bg = "#1E1B4B";
-    accent = "#6366F1";
-    iconText = "🏺";
-    label = "Home & Living";
-  } else if (cat.includes("fashion") || cat.includes("cloth") || cat.includes("apparel")) {
-    bg = "#312E81";
-    accent = "#EC4899";
-    iconText = "👔";
-    label = "Fashion & Apparel";
+export function getCategoryPlaceholderSvg(category: string, shopName: string): string {
+  const catLower = (category || "").toLowerCase();
+  const nameLower = (shopName || "").toLowerCase();
+
+  // Search for matching high-definition store photo
+  for (const [key, urls] of Object.entries(CATEGORY_IMAGES)) {
+    if (catLower.includes(key) || nameLower.includes(key)) {
+      // Pick deterministic photo index based on shopName length to prevent flickering
+      const index = Math.abs(shopName.length) % urls.length;
+      return urls[index];
+    }
   }
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400" fill="none">
-    <rect width="600" height="400" fill="${bg}"/>
-    <circle cx="300" cy="170" r="70" fill="${accent}" fill-opacity="0.15" stroke="${accent}" stroke-width="2" stroke-dasharray="6 6"/>
-    <text x="300" y="188" font-size="52" text-anchor="middle" dominant-baseline="middle">${iconText}</text>
-    <rect x="150" y="270" width="300" height="32" rx="16" fill="${accent}" fill-opacity="0.2" stroke="${accent}" stroke-opacity="0.4"/>
-    <text x="300" y="291" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#FAFAF9" text-anchor="middle" letter-spacing="1.5">${label.toUpperCase()}</text>
-    <text x="300" y="340" font-family="Inter, sans-serif" font-size="16" font-weight="600" fill="#94A3B8" text-anchor="middle">${shopName.replace(/["'<>]/g, "")}</text>
-  </svg>`;
-
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  // General store default photo
+  const defaultPhotos = CATEGORY_IMAGES.fashion;
+  const index = Math.abs(shopName.length) % defaultPhotos.length;
+  return defaultPhotos[index];
 }

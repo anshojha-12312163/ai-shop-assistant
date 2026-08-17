@@ -50,7 +50,7 @@ export function LocationSearchBox({
       setIsLoading(true);
       try {
         const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-          query
+          query,
         )}&format=json&limit=5&addressdetails=1`;
         const res = await fetch(url, {
           headers: { "User-Agent": "SynthetixAIShopAssistant/1.0" },
@@ -119,7 +119,7 @@ export function LocationSearchBox({
         setIsLocatingGPS(false);
         toast.error("Could not fetch GPS permission: " + err.message);
       },
-      { timeout: 8000, enableHighAccuracy: true }
+      { timeout: 8000, enableHighAccuracy: true },
     );
   }
 

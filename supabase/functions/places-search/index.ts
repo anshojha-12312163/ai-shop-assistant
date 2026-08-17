@@ -136,8 +136,13 @@ serve(async (req) => {
                 id: place.place_id,
                 place_id: place.place_id,
                 name: place.name,
-                category: category !== "All" ? category : (place.types?.[0]?.replace(/_/g, " ") ?? "Retail"),
-                description: place.vicinity ? `Located at ${place.vicinity}. Top-rated local merchant.` : "Local commercial store",
+                category:
+                  category !== "All"
+                    ? category
+                    : (place.types?.[0]?.replace(/_/g, " ") ?? "Retail"),
+                description: place.vicinity
+                  ? `Located at ${place.vicinity}. Top-rated local merchant.`
+                  : "Local commercial store",
                 address: place.vicinity ?? place.formatted_address ?? "Seattle, WA",
                 lat: pLat,
                 lng: pLng,
@@ -162,7 +167,8 @@ serve(async (req) => {
       isFallback = true;
 
       const supabaseUrl = Deno.env.get("SUPABASE_URL");
-      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
+      const supabaseKey =
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
 
       if (supabaseUrl && supabaseKey) {
         const sb = createClient(supabaseUrl, supabaseKey);
@@ -189,7 +195,8 @@ serve(async (req) => {
             id: "fallback-1",
             name: "Sole Craft Athletics",
             category: "Footwear",
-            description: "Artisan sneaker & performance running shoe boutique featuring custom fitting.",
+            description:
+              "Artisan sneaker & performance running shoe boutique featuring custom fitting.",
             address: "412 Pike St, Seattle, WA",
             lat: 47.6101,
             lng: -122.3365,
@@ -207,21 +214,22 @@ serve(async (req) => {
             category: "Cafe",
             description: "Specialty coffee shop serving single-origin pour-overs and matcha.",
             address: "1400 2nd Ave, Seattle, WA",
-            lat: 47.6090,
+            lat: 47.609,
             lng: -122.3385,
             rating: 4.9,
             review_count: 340,
             open_now: true,
             phone: "(206) 555-0410",
             image_url: "https://picsum.photos/seed/velvet-espresso/600/400",
-            distance_miles: calculateDistanceMiles(lat, lng, 47.6090, -122.3385),
+            distance_miles: calculateDistanceMiles(lat, lng, 47.609, -122.3385),
             isFallback: true,
           },
           {
             id: "fallback-3",
             name: "Apothecary & Wellness Co.",
             category: "Pharmacy",
-            description: "Full-service pharmacy offering natural wellness products and prescriptions.",
+            description:
+              "Full-service pharmacy offering natural wellness products and prescriptions.",
             address: "1215 4th Ave, Seattle, WA",
             lat: 47.6088,
             lng: -122.3352,
@@ -262,13 +270,13 @@ serve(async (req) => {
         source: isFallback ? "fallback" : "google_places",
         isFallbackMode: isFallback,
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (error) {
     console.error("places-search function error:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Search error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 });

@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
-import { Navigation, Car, Footprints, ExternalLink, ChevronDown, ChevronUp, MapPin, Clock, Compass } from "lucide-react";
+import {
+  Navigation,
+  Car,
+  Footprints,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  MapPin,
+  Clock,
+  Compass,
+} from "lucide-react";
 import { toast } from "sonner";
 
 interface MapRoutingViewProps {
@@ -28,16 +38,22 @@ export function MapRoutingView({ userLocation, destination }: MapRoutingViewProp
 
   useEffect(() => {
     setMounted(true);
-    Promise.all([import("leaflet"), import("react-leaflet")]).then(([leafletModule, reactLeafletModule]) => {
-      setL(leafletModule.default || leafletModule);
-      setRL(reactLeafletModule);
-    });
+    Promise.all([import("leaflet"), import("react-leaflet")]).then(
+      ([leafletModule, reactLeafletModule]) => {
+        setL(leafletModule.default || leafletModule);
+        setRL(reactLeafletModule);
+      },
+    );
   }, []);
+
+  const [hasRouteError, setHasRouteError] = useState(false);
+  const [distanceKm, setDistanceKm] = useState<number>(0);
 
   // Fetch route geometry and turn-by-turn steps from OSRM
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setHasRouteError(false);
 
     const profile = mode === "driving" ? "driving" : "foot";
     const url = `https://router.project-osrm.org/route/v1/${profile}/${userLocation.lng},${userLocation.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson&steps=true`;
@@ -50,11 +66,13 @@ export function MapRoutingView({ userLocation, destination }: MapRoutingViewProp
         if (data.routes && data.routes.length > 0) {
           const route = data.routes[0];
           const coords: [number, number][] = route.geometry.coordinates.map(
-            (c: [number, number]) => [c[1], c[0]]
+            (c: [number, number]) => [c[1], c[0]],
           );
 
           setRouteCoords(coords);
-          setDistanceMiles(Math.round((route.distance / 1609.34) * 10) / 10);
+          const distKmVal = route.distance / 1000;
+          setDistanceKm(distKmVal);
+          setDistanceMiles(Math.round((distKmVal * 0.621371) * 10) / 10);
           setDurationMins(Math.max(1, Math.round(route.duration / 60)));
 
           const parsedSteps: RouteStep[] = [];
@@ -70,9 +88,11 @@ export function MapRoutingView({ userLocation, destination }: MapRoutingViewProp
                 else if (type === "arrive") inst = `Arrive at ${destination.name}`;
 
                 inst = inst.charAt(0).toUpperCase() + inst.slice(1);
+                const stepMeters = st.distance;
+                const stepDistText = stepMeters < 1000 ? `${Math.round(stepMeters)} m` : `${(stepMeters / 1000).toFixed(1)} km`;
                 parsedSteps.push({
                   instruction: inst,
-                  distanceMiles: Math.round((st.distance / 1609.34) * 10) / 10,
+                  distanceMiles: stepDistText as any,
                 });
               }
             });
@@ -80,7 +100,7 @@ export function MapRoutingView({ userLocation, destination }: MapRoutingViewProp
 
           setSteps(parsedSteps);
         } else {
-          // Direct line fallback if OSRM returns empty
+          setHasRouteError(true);
           setRouteCoords([
             [userLocation.lat, userLocation.lng],
             [destination.lat, destination.lng],
@@ -91,6 +111,7 @@ export function MapRoutingView({ userLocation, destination }: MapRoutingViewProp
       .catch((err) => {
         console.warn("OSRM routing error fallback:", err);
         if (!cancelled) {
+          setHasRouteError(true);
           setRouteCoords([
             [userLocation.lat, userLocation.lng],
             [destination.lat, destination.lng],
@@ -171,6 +192,8 @@ export function MapRoutingView({ userLocation, destination }: MapRoutingViewProp
 
   const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${destination.lat},${destination.lng}&travelmode=${mode}`;
 
+  const [mapStyle, setMapStyle] = useState<"standard" | "satellite" | "hybrid">("standard");
+
   return (
     <div className="space-y-4">
       {/* Route Mode & Stats Header Bar */}
@@ -198,6 +221,40 @@ export function MapRoutingView({ userLocation, destination }: MapRoutingViewProp
             >
               <Footprints className="size-3.5" />
               Walking
+            </button>
+          </div>
+
+          {/* Map Layer Switcher */}
+          <div className="flex bg-secondary p-1 rounded-full border border-border">
+            <button
+              onClick={() => setMapStyle("standard")}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                mapStyle === "standard"
+                  ? "bg-foreground text-background shadow"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              🗺️ Street
+            </button>
+            <button
+              onClick={() => setMapStyle("satellite")}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                mapStyle === "satellite"
+                  ? "bg-foreground text-background shadow"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              🛰️ Satellite
+            </button>
+            <button
+              onClick={() => setMapStyle("hybrid")}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                mapStyle === "hybrid"
+                  ? "bg-foreground text-background shadow"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              🏙️ Hybrid
             </button>
           </div>
         </div>
@@ -233,17 +290,35 @@ export function MapRoutingView({ userLocation, destination }: MapRoutingViewProp
           scrollWheelZoom={false}
           className="w-full h-full z-0"
         >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+          {mapStyle === "standard" && (
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          )}
+
+          {(mapStyle === "satellite" || mapStyle === "hybrid") && (
+            <TileLayer
+              attribution='&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            />
+          )}
+
+          {mapStyle === "hybrid" && (
+            <TileLayer
+              attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png"
+            />
+          )}
 
           {/* User Location Marker */}
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
             <Popup>
               <div className="p-1 text-xs">
                 <strong>Your Location</strong>
-                <p className="text-[10px] text-muted-foreground">{userLocation.label || "Starting Point"}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {userLocation.label || "Starting Point"}
+                </p>
               </div>
             </Popup>
           </Marker>
@@ -269,7 +344,12 @@ export function MapRoutingView({ userLocation, destination }: MapRoutingViewProp
             />
           )}
 
-          <MapBoundsFitter coords={[[userLocation.lat, userLocation.lng], [destination.lat, destination.lng]]} />
+          <MapBoundsFitter
+            coords={[
+              [userLocation.lat, userLocation.lng],
+              [destination.lat, destination.lng],
+            ]}
+          />
         </MapContainer>
       </div>
 
@@ -290,7 +370,10 @@ export function MapRoutingView({ userLocation, destination }: MapRoutingViewProp
           {showSteps && (
             <div className="p-4 pt-0 border-t border-border/60 space-y-2 max-h-60 overflow-y-auto">
               {steps.map((st, idx) => (
-                <div key={idx} className="flex items-start gap-3 text-xs p-2 rounded-xl hover:bg-secondary/30 transition-colors">
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 text-xs p-2 rounded-xl hover:bg-secondary/30 transition-colors"
+                >
                   <span className="size-5 rounded-full bg-accent/15 text-accent font-bold font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                     {idx + 1}
                   </span>

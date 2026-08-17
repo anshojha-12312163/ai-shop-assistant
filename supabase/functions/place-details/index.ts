@@ -27,7 +27,12 @@ serve(async (req) => {
 
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY") || Deno.env.get("PLACES_API_KEY");
 
-    if (apiKey && !placeId.startsWith("fallback-") && !placeId.startsWith("s") && !placeId.startsWith("shop-")) {
+    if (
+      apiKey &&
+      !placeId.startsWith("fallback-") &&
+      !placeId.startsWith("s") &&
+      !placeId.startsWith("shop-")
+    ) {
       try {
         const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,user_ratings_total,formatted_phone_number,formatted_address,photos,reviews,opening_hours,website,geometry&key=${apiKey}`;
         const res = await fetch(detailsUrl);
@@ -37,9 +42,12 @@ serve(async (req) => {
           const p = data.result;
 
           if (p) {
-            const photos = (p.photos ?? []).slice(0, 5).map((ph: any) =>
-              `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${ph.photo_reference}&key=${apiKey}`
-            );
+            const photos = (p.photos ?? [])
+              .slice(0, 5)
+              .map(
+                (ph: any) =>
+                  `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${ph.photo_reference}&key=${apiKey}`,
+              );
 
             const reviews = (p.reviews ?? []).slice(0, 5).map((r: any) => ({
               author_name: r.author_name,
@@ -59,7 +67,8 @@ serve(async (req) => {
                   website: p.website ?? "https://google.com/maps",
                   rating: p.rating ?? 4.8,
                   user_ratings_total: p.user_ratings_total ?? 100,
-                  photos: photos.length > 0 ? photos : [`https://picsum.photos/seed/${placeId}/800/600`],
+                  photos:
+                    photos.length > 0 ? photos : [`https://picsum.photos/seed/${placeId}/800/600`],
                   reviews,
                   weekday_text: p.opening_hours?.weekday_text ?? [
                     "Monday - Friday: 8:00 AM - 8:00 PM",
@@ -71,7 +80,7 @@ serve(async (req) => {
                   isFallback: false,
                 },
               }),
-              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } },
             );
           }
         }
@@ -124,7 +133,7 @@ serve(async (req) => {
     console.error("place-details function error:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Details error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 });

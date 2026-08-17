@@ -44,33 +44,37 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
-  function handleClearAndReload() {
-    if (typeof window !== "undefined") {
-      localStorage.clear();
-      window.location.href = "/";
-    }
-  }
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center space-y-4">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">This page didn't load</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Synthetix AI Assistant
+        </h1>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          {error?.message ? error.message : "Something went wrong while rendering the route. Please try refreshing or clear session cache."}
+          {error?.message
+            ? error.message
+            : "Connection refresh required. Tap below to launch the marketplace."}
         </p>
         <div className="pt-2 flex flex-wrap justify-center gap-3">
           <button
-            onClick={() => { router.invalidate(); reset(); }}
-            className="rounded-full bg-foreground px-6 py-2.5 text-sm font-bold text-background hover:bg-accent transition-colors"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.location.reload();
+              } else {
+                router.invalidate();
+                reset();
+              }
+            }}
+            className="rounded-full bg-foreground px-6 py-2.5 text-sm font-bold text-background hover:bg-accent transition-colors cursor-pointer"
           >
-            Try again
+            Refresh & Launch Marketplace
           </button>
-          <button
-            onClick={handleClearAndReload}
-            className="rounded-full border border-border bg-secondary px-6 py-2.5 text-sm font-semibold text-foreground hover:bg-border transition-colors"
+          <a
+            href="/"
+            className="rounded-full border border-border bg-secondary px-6 py-2.5 text-sm font-semibold text-foreground hover:bg-border transition-colors cursor-pointer"
           >
-            Reset Session & Home
-          </button>
+            Go Home
+          </a>
         </div>
       </div>
     </div>
@@ -83,9 +87,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Synthetix — The marketplace that shops with you" },
-      { name: "description", content: "AI-mediated marketplace. Discover with conversation, sell with a co-pilot. Curated goods from independent makers." },
+      {
+        name: "description",
+        content:
+          "AI-mediated marketplace. Discover with conversation, sell with a co-pilot. Curated goods from independent makers.",
+      },
       { property: "og:title", content: "Synthetix — AI-powered marketplace" },
-      { property: "og:description", content: "Find exactly what you actually mean. Conversational discovery, explainable recommendations, and an AI co-pilot for sellers." },
+      {
+        property: "og:description",
+        content:
+          "Find exactly what you actually mean. Conversational discovery, explainable recommendations, and an AI co-pilot for sellers.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -94,7 +106,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -106,7 +121,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <head><HeadContent /></head>
+      <head>
+        <HeadContent />
+      </head>
       <body>
         {children}
         <Scripts />
@@ -148,7 +165,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <CartProvider>
         <Outlet />
-        <Toaster position="top-center" theme="light" toastOptions={{ style: { fontFamily: 'var(--font-sans)' }}} />
+        <Toaster
+          position="top-center"
+          theme="light"
+          toastOptions={{ style: { fontFamily: "var(--font-sans)" } }}
+        />
       </CartProvider>
     </QueryClientProvider>
   );

@@ -93,8 +93,17 @@ function ProfilePage() {
     const [profileRes, rolesRes, favsRes, historyRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", user.id),
-      supabase.from("favorites").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      supabase.from("search_history").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
+      supabase
+        .from("favorites")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("search_history")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20),
     ]);
 
     if (profileRes.data) {
@@ -165,7 +174,8 @@ function ProfilePage() {
 
   async function handleClearHistory() {
     if (!userId) return;
-    if (!confirm("Are you sure you want to clear your search history? This cannot be undone.")) return;
+    if (!confirm("Are you sure you want to clear your search history? This cannot be undone."))
+      return;
 
     setIsClearingHistory(true);
     try {
@@ -192,16 +202,15 @@ function ProfilePage() {
       <Nav />
 
       {/* Shop Detail Modal */}
-      <ShopDetailModal
-        placeId={detailModalPlaceId}
-        onClose={() => setDetailModalPlaceId(null)}
-      />
+      <ShopDetailModal placeId={detailModalPlaceId} onClose={() => setDetailModalPlaceId(null)} />
 
       <main className="max-w-4xl mx-auto px-6 pt-10 pb-24 w-full">
         {loading ? (
           <div className="p-16 text-center flex flex-col items-center justify-center gap-3">
             <Loader2 className="size-8 text-accent animate-spin" />
-            <span className="font-mono text-xs text-muted-foreground">Loading Account & Saved Data...</span>
+            <span className="font-mono text-xs text-muted-foreground">
+              Loading Account & Saved Data...
+            </span>
           </div>
         ) : (
           <div className="space-y-8 animate-fade-in">
@@ -221,7 +230,9 @@ function ProfilePage() {
                     <Mail className="size-3.5 text-accent" />
                     {userEmail}
                   </p>
-                  {bio && <p className="text-xs text-muted-foreground mt-2 italic max-w-md">"{bio}"</p>}
+                  {bio && (
+                    <p className="text-xs text-muted-foreground mt-2 italic max-w-md">"{bio}"</p>
+                  )}
                 </div>
               </div>
 
@@ -254,7 +265,9 @@ function ProfilePage() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Heart className={`size-3.5 ${activeTab === "favorites" ? "fill-rose-500 text-rose-500" : ""}`} />
+                <Heart
+                  className={`size-3.5 ${activeTab === "favorites" ? "fill-rose-500 text-rose-500" : ""}`}
+                />
                 Saved Shops ({favorites.length})
               </button>
 
@@ -303,7 +316,8 @@ function ProfilePage() {
                     </div>
                     <h3 className="text-lg font-bold">No favorites saved yet</h3>
                     <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                      Tap the heart icon on any shop card in the AI Assistant or Discover page to save it here for quick access!
+                      Tap the heart icon on any shop card in the AI Assistant or Discover page to
+                      save it here for quick access!
                     </p>
                     <button
                       onClick={() => navigate({ to: "/discover" })}
@@ -373,7 +387,8 @@ function ProfilePage() {
                     </div>
                     <h3 className="text-lg font-bold">No search history recorded</h3>
                     <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                      Your searches in the AI Assistant and marketplace search bar will automatically appear here.
+                      Your searches in the AI Assistant and marketplace search bar will
+                      automatically appear here.
                     </p>
                   </div>
                 ) : (
@@ -381,7 +396,9 @@ function ProfilePage() {
                     {searchHistory.map((item) => (
                       <div
                         key={item.id}
-                        onClick={() => navigate({ to: "/discover", search: { q: item.query_text } })}
+                        onClick={() =>
+                          navigate({ to: "/discover", search: { q: item.query_text } })
+                        }
                         className="group bg-surface-elevated p-4 border border-border hover:border-accent rounded-2xl transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-between gap-4"
                       >
                         <div className="flex items-center gap-3">
@@ -471,7 +488,11 @@ function ProfilePage() {
                       disabled={saving}
                       className="px-7 py-2.5 bg-foreground text-background hover:bg-accent hover:text-accent-foreground rounded-full text-xs font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
                     >
-                      {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+                      {saving ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <Save className="size-4" />
+                      )}
                       Save Profile
                     </button>
                   </div>

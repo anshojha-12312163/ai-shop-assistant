@@ -35,15 +35,21 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
+      if (response.status >= 500) {
+        try {
+          const text = await response.clone().text();
+          if (text.includes('"unhandled": true') || text.includes('"status": 500')) {
+            console.warn("Intercepted SSR 500 error response, bypassing swallow");
+          }
+        } catch {
+          // ignore clone error
+        }
+      }
       return response;
     } catch (error) {
       console.warn("SSR Server Entry warning:", error);
-      try {
-        const handler = await getServerEntry();
-        return await handler.fetch(request, env, ctx);
-      } catch {
-        return new Response(null, { status: 200 });
-      }
+      const handler = await getServerEntry();
+      return await handler.fetch(request, env, ctx);
     }
   },
 };

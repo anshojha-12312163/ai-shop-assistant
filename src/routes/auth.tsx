@@ -21,7 +21,7 @@ export const Route = createFileRoute("/auth")({
 
 type AuthView = "signin" | "signup" | "reset_request" | "reset_sent" | "confirm_email";
 
-export function AuthPage() {
+function AuthPage() {
   const search = Route.useSearch();
   const [view, setView] = useState<AuthView>(search.mode === "signin" ? "signin" : "signup");
   const [role, setRole] = useState<"buyer" | "seller">(search.role ?? "buyer");

@@ -152,50 +152,54 @@ export function ProductCard({
 
   return (
     <>
-      <Link to="/product/$id" params={{ id: product.id }} className="group block space-y-3">
-        <div className="aspect-[4/5] overflow-hidden rounded-xl relative bg-muted">
-          <ProductImage product={product} />
+      <div className="group block space-y-3">
+        <Link to="/product/$id" params={{ id: product.id }} className="block">
+          <div className="aspect-[4/5] overflow-hidden rounded-xl relative bg-muted">
+            <ProductImage product={product} />
 
-          {/* gradient overlay for text legibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+            {/* gradient overlay for text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
 
-          <div className="absolute inset-0 flex items-end p-5">
-            <span className="font-display italic text-2xl text-white/95 drop-shadow leading-tight line-clamp-2">
-              {product.title}
-            </span>
-          </div>
-
-          {/* Featured badge */}
-          {featured && (
-            <div className="absolute top-3 left-3">
-              <div className="bg-amber-400 text-amber-900 px-2 py-0.5 rounded text-[9px] font-bold font-mono uppercase tracking-widest">
-                ★ Sponsored
-              </div>
+            <div className="absolute inset-0 flex items-end p-5">
+              <span className="font-display italic text-2xl text-white/95 drop-shadow leading-tight line-clamp-2">
+                {product.title}
+              </span>
             </div>
-          )}
 
-          {/* Match badge */}
-          {typeof match === "number" && !featured && (
-            <div className="absolute top-3 left-3">
-              <div className="bg-white/95 backdrop-blur px-2 py-0.5 rounded text-[10px] font-bold font-mono">
-                {match}% match
+            {/* Featured badge */}
+            {featured && (
+              <div className="absolute top-3 left-3">
+                <div className="bg-amber-400 text-amber-900 px-2 py-0.5 rounded text-[9px] font-bold font-mono uppercase tracking-widest">
+                  ★ Sponsored
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="absolute top-3 right-3">
-            <InventoryConfidenceBadge data={confidenceData} showCallConfirm={false} />
+            {/* Match badge */}
+            {typeof match === "number" && !featured && (
+              <div className="absolute top-3 left-3">
+                <div className="bg-white/95 backdrop-blur px-2 py-0.5 rounded text-[10px] font-bold font-mono">
+                  {match}% match
+                </div>
+              </div>
+            )}
+
+            <div className="absolute top-3 right-3">
+              <InventoryConfidenceBadge data={confidenceData} showCallConfirm={false} />
+            </div>
           </div>
-        </div>
+        </Link>
 
         <div className="px-0.5 space-y-2">
-          <div className="flex justify-between items-start gap-2">
-            <h3 className="font-bold text-base leading-tight group-hover:text-accent transition-colors line-clamp-2">
-              {product.title}
-            </h3>
-            <span className="font-mono text-sm shrink-0">{formatPrice(product.price_cents)}</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5">By {product.seller_name}</p>
+          <Link to="/product/$id" params={{ id: product.id }} className="block">
+            <div className="flex justify-between items-start gap-2">
+              <h3 className="font-bold text-base leading-tight group-hover:text-accent transition-colors line-clamp-2">
+                {product.title}
+              </h3>
+              <span className="font-mono text-sm shrink-0">{formatPrice(product.price_cents)}</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">By {product.seller_name}</p>
+          </Link>
 
           <StarRow rating={rating} />
 
@@ -222,7 +226,7 @@ export function ProductCard({
             </div>
           )}
         </div>
-      </Link>
+      </div>
 
       <ReservationModal
         isOpen={isReserveModalOpen}

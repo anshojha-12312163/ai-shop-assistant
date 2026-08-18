@@ -111,7 +111,7 @@ export function InventoryConfidenceBadge({
         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border backdrop-blur-md ${info.badgeBg} ${info.badgeBorder} ${info.badgeText} shadow-2xs font-mono text-[10px] font-bold uppercase tracking-wider`}
       >
         <span className={`size-2 rounded-full ${info.dotColor} shrink-0`} />
-        <span>{info.label}</span>
+        <span suppressHydrationWarning>{info.label}</span>
       </div>
 
       {/* Call & Confirm Warning Box (when not verified or when unconfirmed) */}
@@ -119,7 +119,7 @@ export function InventoryConfidenceBadge({
         <div className="bg-secondary/80 border border-border/80 rounded-2xl p-3 space-y-2 text-xs">
           <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400 font-medium">
             <AlertTriangle className="size-3.5 mt-0.5 shrink-0" />
-            <p className="leading-snug text-[11px]">
+            <p suppressHydrationWarning className="leading-snug text-[11px]">
               {info.tier === "unconfirmed"
                 ? "Availability not yet confirmed by merchant — call or message ahead to confirm stock before visiting."
                 : `Availability last ${info.timeAgoText.toLowerCase()} — call or message ahead to confirm stock before visiting.`}

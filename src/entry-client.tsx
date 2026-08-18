@@ -1,17 +1,15 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { RouterProvider } from "@tanstack/react-router";
-import { getRouter } from "./router";
+import { StrictMode, startTransition } from "react";
+import { hydrateRoot } from "react-dom/client";
+import { StartClient } from "@tanstack/react-start/client";
+import "./styles.css";
 
-const router = getRouter();
-
-// Use hydrateRoot to attach to SSR-rendered HTML without re-rendering
-const rootEl = document.getElementById("root");
-if (rootEl) {
-  ReactDOM.hydrateRoot(
+startTransition(() => {
+  hydrateRoot(
     document,
-    <React.StrictMode>
-      <RouterProvider router={router} />
-    </React.StrictMode>,
+    <StrictMode>
+      <StartClient />
+    </StrictMode>,
   );
-}
+});
+
+

@@ -8,10 +8,18 @@
     <link rel="icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script type="module">
+      import RefreshRuntime from "/@react-refresh";
+      RefreshRuntime.injectIntoGlobalHook(window);
+      window.$RefreshReg$ = () => {};
+      window.$RefreshSig$ = () => (type) => type;
+      window.__vite_plugin_react_preamble_installed__ = true;
+    </script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="/src/styles.css?direct" />
   </head>
   <body class="bg-background text-foreground antialiased selection:bg-accent/30">
     <div id="root"></div>

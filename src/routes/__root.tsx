@@ -77,15 +77,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Synthetix — The marketplace that shops with you" },
+      { title: "Synthetix — Find exactly what you actually mean" },
       {
         name: "description",
         content:
-          "AI-mediated marketplace. Discover with conversation, sell with a co-pilot. Curated goods from independent makers.",
+          "AI-mediated marketplace with conversational discovery, Google Lens visual search, and local store matching.",
       },
     ],
     links: [
-      { rel: "stylesheet", href: appCss },
+      { rel: "stylesheet", href: "/src/styles.css?direct" },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
